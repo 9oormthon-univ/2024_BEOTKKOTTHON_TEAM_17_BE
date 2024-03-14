@@ -88,16 +88,16 @@ jobs:
           key: ${{ secrets.LIGHTSAIL_SSH_KEY }}
           script: echo -e "#!/bin/bash\n
             export JWT=${{ secrets.JWT}}\n
-            export JWT_EXPIRATION = ${{ secrets.JWT_EXPIRATION }} \n
-            export JWT_HEADER = ${{ secrets.JWT_HEADER }}\n
-            export BUCKET = ${{ secrets.BUCKET }}\n
-            export S3_ACCESS_KEY = ${{ secrets.S3_ACCESS_KEY }}\n
-            export S3_SECRETKEY = ${{ secrets.S3_SECRETKEY }}\n
-            export SMTP_USERNAME = ${{ secrets.SMTP_USERNAME }}\n
-            export SMTP_PW = ${{ secrets.SMTP_PW }}\n
-            export DATA_SOURCE_URL= ${{ secrets.DATA_SOURCE_URL }}\n
-            export DATA_SOURCE_USERNAME = ${{ secrets.DATA_SOURCE_USERNAME }}\n
-            export DATA_SOURCE_PW = ${{ secrets.DATA_SOURCE_PW }}\n
+            export JWT_EXPIRATION=${{ secrets.JWT_EXPIRATION }} \n
+            export JWT_HEADER=${{ secrets.JWT_HEADER }}\n
+            export BUCKET=${{ secrets.BUCKET }}\n
+            export S3_ACCESS_KEY=${{ secrets.S3_ACCESS_KEY }}\n
+            export S3_SECRETKEY=${{ secrets.S3_SECRETKEY }}\n
+            export SMTP_USERNAME=${{ secrets.SMTP_USERNAME }}\n
+            export SMTP_PW=${{ secrets.SMTP_PW }}\n
+            export DATA_SOURCE_URL=${{ secrets.DATA_SOURCE_URL }}\n
+            export DATA_SOURCE_USERNAME=${{ secrets.DATA_SOURCE_USERNAME }}\n
+            export DATA_SOURCE_PW=${{ secrets.DATA_SOURCE_PW }}\n
             
   
             nohup java -jar ./libs/ponnect-0.0.1-SNAPSHOT.jar > /home/ubuntu/ponnect.log 2>&1 &" > ponnect_start.sh
