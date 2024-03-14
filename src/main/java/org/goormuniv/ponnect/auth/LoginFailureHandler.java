@@ -4,14 +4,18 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import lombok.extern.slf4j.Slf4j;
 import org.json.JSONException;
-import org.json.JSONObject;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationFailureHandler;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
+
 @Component
+@Slf4j
 public class LoginFailureHandler extends SimpleUrlAuthenticationFailureHandler {
 
     @Override
@@ -19,12 +23,13 @@ public class LoginFailureHandler extends SimpleUrlAuthenticationFailureHandler {
         ObjectMapper objectMapper = new ObjectMapper();
         response.setContentType("application/json;charset=UTF-8");
         response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-        JSONObject jsonObject = new JSONObject();
+        log.info("로그인 실패함");
+        Map<String, String> body = new HashMap<>();
         try {
-            jsonObject.put("message", "이메일 또는 비밀번호가 잘못되었음");
+            body.put("message", "이메일 또는 비밀번호가 잘못되었습니다.");
         } catch (JSONException e) {
             throw new RuntimeException(e);
         }
-        response.getWriter().write(objectMapper.writeValueAsString(jsonObject));
+        response.getWriter().write(objectMapper.writeValueAsString(body));
     }
 }
