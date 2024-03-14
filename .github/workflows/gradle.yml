@@ -99,7 +99,7 @@ jobs:
             export DATA_SOURCE_USERNAME = ${{ secrets.DATA_SOURCE_USERNAME }}\n
             export DATA_SOURCE_PW = ${{ secrets.DATA_SOURCE_PW }}\n
             
-            export DB_URL=${{ secrets.DB_URL }}\n
+  
             nohup java -jar ./libs/ponnect-0.0.1-SNAPSHOT.jar > /home/ubuntu/ponnect.log 2>&1 &" > ponnect_start.sh
         #생성된 쉘 스크립트에 실행 권한 부여
       - name: Grant execute permission for start.sh
