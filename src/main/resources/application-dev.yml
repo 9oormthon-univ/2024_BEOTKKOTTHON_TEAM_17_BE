@@ -1,0 +1,50 @@
+spring:
+  datasource:
+    url: ${DATA_SOURCE_URL}
+    username: ${DATA_SOURCE_USERNAME}
+    password: ${DATA_SOURCE_PW}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        show_sql: true
+        format_sql: true
+
+
+  servlet:
+    multipart:
+      max-file-size: 100MB
+      max-request-size: 200MB
+
+
+
+jwt:
+  secret : ${JWT}
+  access:
+    expiration: ${JWT_EXPIRATION}
+    header: ${JWT_HEADER}
+
+server:
+  port: 8090
+  compression:
+    enabled: true
+    mime-types: text/html,text/plain,text/css,application/javascript,application/json, application/zip, application/octet-stream, image/jpeg, image/png
+cloud:
+  aws:
+    s3:
+      bucket: ${BUCKET}
+    credentials:
+      access-key: ${S3_ACCESS_KEY}
+      secret-key: ${S3_SECRETKEY}
+    region:
+      static: us-east-1
+      auto: false
+    stack:
+      auto: false
+smtp:
+  mail:
+    username: ${SMTP_USERNAME}
+    password: ${SMTP_PW}
