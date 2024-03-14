@@ -15,6 +15,7 @@ import org.goormuniv.ponnect.service.MemberService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -49,22 +50,23 @@ public class MemberController {
         }
     }
 
+    @PreAuthorize("isAuthenticated()")
     @GetMapping("/auth/validation-jwt")
     public ResponseEntity<?> validateJwt(HttpServletRequest httpServletRequest) throws ServletException, IOException {
         return memberService.validateJwt(httpServletRequest);
     }
 
 
-
+    @Deprecated
     @GetMapping("/auth/check-info")
     public ResponseEntity<?> validUserInfo(@RequestBody UserInfoDto userInfoDto){
         return memberService.validUserInfo(userInfoDto);
     }
 
 
-    @GetMapping("/auth/reissuance/pw")
-    public ResponseEntity<?> reissue(@AuthenticationPrincipal PrincipalDetails principalDetails){
-        return memberService.reissue(principalDetails);
+    @PostMapping("/auth/reissuance-pw")
+    public ResponseEntity<?> reissue(@RequestBody UserInfoDto userInfoDto){
+        return memberService.reissue(userInfoDto);
     }
 
 

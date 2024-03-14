@@ -55,22 +55,21 @@ public class MemberService {
         if (accessToken.isPresent()) {
             jwtProvider.validateToken(accessToken.get());
             String email = jwtProvider.extractUserEmail(accessToken.get());
-            try {
-                Member member = memberRepository.findByEmail(email).orElseThrow(RuntimeException::new);
 
+                Optional<Member> member = memberRepository.findByEmail(email);
+                if(member.isPresent()){
                 return new ResponseEntity<>(AuthenticationDto.builder()
-                        .userId(member.getId())
-                        .email(member.getEmail())
-                        .phone(member.getPhone())
-                        .name(member.getName())
-                        .profileImgURL(member.getProfileImgUrl())
+                        .userId(member.get().getId())
+                        .email(member.get().getEmail())
+                        .phone(member.get().getPhone())
+                        .name(member.get().getName())
+                        .profileImgURL(member.get().getProfileImgUrl())
                         .build(), HttpStatus.OK);
-            } catch (Exception exception) {
-                log.info(exception.getMessage());
-                return new ResponseEntity<>(ErrMsgDto.builder()
-                        .statusCode(HttpStatus.BAD_REQUEST.value())
-                        .message("유저 정보가 없습니다."), HttpStatus.BAD_REQUEST);
-            }
+            } else {
+                    return new ResponseEntity<>(ErrMsgDto.builder()
+                            .statusCode(HttpStatus.BAD_REQUEST.value())
+                            .message("유저 정보가 없습니다.").build(), HttpStatus.BAD_REQUEST);
+                }
         } else {
             return new ResponseEntity<>(ErrMsgDto.builder()
                     .statusCode(HttpStatus.BAD_REQUEST.value())
@@ -85,7 +84,7 @@ public class MemberService {
     public ResponseEntity<?> register(Principal principal, String signUp, MultipartFile profileImg, HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse) {
         if (principal != null) { //SecurityContext에 없다면 예외처리
             return new ResponseEntity<>(ErrMsgDto.builder().message("이미 회원가입이 완료되었습니다.")
-                    .statusCode(HttpStatus.BAD_REQUEST.value()), HttpStatus.NOT_ACCEPTABLE);
+                    .statusCode(HttpStatus.BAD_REQUEST.value()).build(), HttpStatus.NOT_ACCEPTABLE);
         }
         try {
             RegisterDto registerRequest = (RegisterDto) new ObjectToDtoUtil().jsonStrToObj(signUp, RegisterDto.class);
@@ -128,8 +127,9 @@ public class MemberService {
         }
     }
 
+    @Deprecated
     public ResponseEntity<?> validUserInfo(UserInfoDto userInfoDto) {
-        Boolean hasUser = memberRepository.existsMembersByEmailAndPhone(userInfoDto.getEmail(), userInfoDto.getPhone());
+        Boolean hasUser = memberRepository.findByEmailAndPhone(userInfoDto.getEmail(), userInfoDto.getPhone()).isPresent();
         Map<String, Boolean> response = new HashMap<>();
         response.put("hasUser", hasUser);
         return ResponseEntity.ok(response);
@@ -137,23 +137,22 @@ public class MemberService {
 
 
     @Transactional
-    public ResponseEntity<?> reissue(PrincipalDetails principalDetails) {
+    public ResponseEntity<?> reissue(UserInfoDto userInfoDto) {
         String newPw = UUID.randomUUID().toString().substring(0, 8).toUpperCase();
-        Member member;
-        try {
-            member = memberRepository.findByEmail(principalDetails.getUsername()).orElseThrow(RuntimeException::new);
-            member.setPassword(passwordEncoder.encode(newPw));
-        } catch (Exception exception) {
-            log.info(exception.getMessage());
+        Optional<Member> member = memberRepository.findByEmailAndPhone(userInfoDto.getEmail(), userInfoDto.getPhone());
+
+        if(member.isPresent()){
+            member.get().setPassword(passwordEncoder.encode(newPw));
+        } else {
             return new ResponseEntity<>(ErrMsgDto.builder()
                     .statusCode(HttpStatus.BAD_REQUEST.value())
-                    .message("유저 정보가 없습니다."), HttpStatus.BAD_REQUEST);
+                    .message("유저 정보가 없습니다.").build(), HttpStatus.BAD_REQUEST);
         }
         try {
             SMTPMsgDto smtpMsgDto = SMTPMsgDto.builder()
-                    .address(principalDetails.getEmail())
-                    .title(principalDetails.getName() + "님의 PONNECT 임시비밀번호 안내 이메일 입니다.")
-                    .message("안녕하세요. PONNECT 임시비밀번호 안내 관련 이메일 입니다." + "[" + principalDetails.getName() + "]" + "님의 임시 비밀번호는 "
+                    .address(member.get().getEmail())
+                    .title(member.get().getName() + "님의 PONNECT 임시비밀번호 안내 이메일 입니다.")
+                    .message("안녕하세요. PONNECT 임시 비밀번호 안내 관련 이메일 입니다. " + "[" + member.get().getName()+ "]" + "님의 임시 비밀번호는 "
                             + newPw + " 입니다.").build();
             SimpleMailMessage simpleMailMessage = new SimpleMailMessage();
             simpleMailMessage.setTo(smtpMsgDto.getAddress());
@@ -164,7 +163,7 @@ public class MemberService {
             log.info(exception.getMessage());
             return new ResponseEntity<>(ErrMsgDto.builder()
                     .statusCode(HttpStatus.INTERNAL_SERVER_ERROR.value())
-                    .message("메일 발송이 실패했습니다."), HttpStatus.INTERNAL_SERVER_ERROR);
+                    .message("메일 발송이 실패했습니다.").build(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
         return ResponseEntity.ok().build();
     }
