@@ -117,7 +117,7 @@ public class SecurityConfig {
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
 
-        configuration.setAllowedOrigins(List.of("http://localhost:3000", "http://localhost:8080"));
+        configuration.setAllowedOrigins(List.of("http://localhost:3000", "http://localhost:8080", "https://ponnect.netlify.app", "https://ponnect.netlify.app:80", "https://ponnect.netlify.app:3000"));
         configuration.addAllowedOriginPattern("*");
         configuration.addAllowedMethod("*");
 

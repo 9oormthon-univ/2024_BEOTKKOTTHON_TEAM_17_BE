@@ -16,7 +16,7 @@ public class WebConfig implements WebMvcConfigurer {
     @Override
     public void addCorsMappings(CorsRegistry registry) {
         registry.addMapping("/**")
-                .allowedOrigins("http://localhost:3000", "http://localhost:8080")
+                .allowedOrigins("http://localhost:3000", "http://localhost:8080", "https://ponnect.netlify.app", "https://ponnect.netlify.app:80", "https://ponnect.netlify.app:3000")
                 .allowedHeaders("authorization", "User-Agent", "Cache-Control", "Content-Type")
                 .exposedHeaders("authorization", "User-Agent", "Cache-Control", "Content-Type")
                 .allowedMethods("*");
