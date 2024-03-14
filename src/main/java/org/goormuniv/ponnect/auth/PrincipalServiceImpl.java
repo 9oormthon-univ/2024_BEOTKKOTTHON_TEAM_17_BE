@@ -7,7 +7,11 @@ import org.goormuniv.ponnect.repository.MemberRepository;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+
+import java.util.Optional;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -17,18 +21,18 @@ public class PrincipalServiceImpl implements UserDetailsService {
     private final MemberRepository memberRepository;
 
 
+
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         System.out.println(username);
         Member member = Member.builder().build();
         try {
-            member = memberRepository.findByEmail(username).orElseThrow(RuntimeException::new);
-            log.info("사용자 이메일 정보: " + member.getEmail());
-        }catch (Exception exception){
-            log.info("사용자 인증 실패");
-            throw exception;
-        }
+            member = memberRepository.findByEmail(username).orElseThrow();
 
+        } catch (Exception exception) {
+            log.info("사용자를 찾을 수 없음");
+            throw new UsernameNotFoundException("사용자를 찾을 수 없음");
+        }
         return PrincipalDetails.builder()
                 .id(member.getId())
                 .name(member.getName())
