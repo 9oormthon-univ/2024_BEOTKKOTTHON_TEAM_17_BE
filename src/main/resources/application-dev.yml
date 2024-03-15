@@ -53,3 +53,9 @@ smtp:
   mail:
     username: ${SMTP_USERNAME}
     password: ${SMTP_PW}
+
+
+logging:
+  discord:
+    webhook-url : ${DISCORD_WEBHOOK_URL}
+  config: classpath:logback-spring.xml
