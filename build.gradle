@@ -13,6 +13,7 @@ java {
 
 repositories {
     mavenCentral()
+    maven {url 'https://jitpack.io' }
 }
 
 dependencies {
@@ -34,6 +35,9 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-mail'
     implementation 'org.springframework.cloud:spring-cloud-starter-aws:2.2.6.RELEASE'
     implementation 'com.github.napstr:logback-discord-appender:1.0.0'
+    implementation group: 'javax.xml.bind', name: 'jaxb-api', version: '2.3.1'
+    implementation group: 'com.sun.xml.bind', name: 'jaxb-core', version: '2.3.0.1'
+    implementation group: 'com.sun.xml.bind', name: 'jaxb-impl', version: '2.3.1'
 }
 
 tasks.named('test') {
