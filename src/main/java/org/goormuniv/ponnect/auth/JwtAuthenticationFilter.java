@@ -43,13 +43,18 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         if (accessToken.isPresent() && SecurityContextHolder.getContext().getAuthentication() == null
                 && jwtProvider.validateToken(accessToken.get()) ) {
             String email = jwtProvider.extractUserEmail(accessToken.get());
-            UserDetails userDetails = principalDetailsServiceImp.loadUserByUsername(email);
-            Authentication authentication = jwtProvider.getAuthentication(userDetails); //Authentication 객체 생성
+            try {
+                UserDetails userDetails = principalDetailsServiceImp.loadUserByUsername(email);
+                Authentication authentication = jwtProvider.getAuthentication(userDetails); //Authentication 객체 생성
 
-            //SecurityContext에 Authentication를 담는다.
-            SecurityContext securityContext = SecurityContextHolder.createEmptyContext();
-            securityContext.setAuthentication(authentication);
-            SecurityContextHolder.setContext(securityContext);
+                //SecurityContext에 Authentication를 담는다.
+                SecurityContext securityContext = SecurityContextHolder.createEmptyContext();
+                securityContext.setAuthentication(authentication);
+                SecurityContextHolder.setContext(securityContext);
+            }catch (Exception exception){
+                log.info("jwt 토큰 검증 도중 예외 발생");
+            }
+
 
         }
 
