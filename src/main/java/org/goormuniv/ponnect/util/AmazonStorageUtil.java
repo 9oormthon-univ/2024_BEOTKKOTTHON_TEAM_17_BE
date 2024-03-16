@@ -8,7 +8,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.File;
+import java.io.*;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
@@ -28,28 +28,26 @@ public class AmazonStorageUtil {
 
 
     //Upload To S3 with Object
-    public String uploadProfileQR(Long userId, MultipartFile object) throws Exception {
+    public String uploadProfileQR(Long userId, ByteArrayOutputStream byteArrayOutputStream) throws Exception {
         log.info("업로드 메서드 호출");
-        String originalName = object.getOriginalFilename();
-        String extension = Objects.requireNonNull(originalName).substring(originalName.lastIndexOf(".") + 1);
-        String generateFileName = UUID.randomUUID() + "." + extension;
-        log.info(generateFileName);
-
+        String generateFileName = UUID.randomUUID().toString().substring(0,8) + ".png";
 
         String filename = userId +  File.separator + PROFILE_IMAGE + File.separator +  generateFileName;
         log.info(filename);
+        byte[] qrCodeBytes = byteArrayOutputStream.toByteArray();
         ObjectMetadata objectMetadata = new ObjectMetadata();
-        objectMetadata.setContentType(object.getContentType() + ";charset=utf-8");
+        objectMetadata.setContentType("image/png" + ";charset=utf-8");
         objectMetadata.setContentEncoding("UTF-8");
-        objectMetadata.setContentLength(object.getInputStream().available());
-
-        amazonS3Client.putObject(bucket, filename, object.getInputStream(), objectMetadata);
+        objectMetadata.setContentLength(qrCodeBytes.length);
+        InputStream inputStream = new ByteArrayInputStream(qrCodeBytes);
+        amazonS3Client.putObject(bucket, filename, inputStream, objectMetadata);
         log.info(amazonS3Client.getUrl(bucket, filename).toString());
         return amazonS3Client.getUrl(bucket, filename).toString();
 
     }
 
 
+    @Deprecated
     //Delete for Object
     public void deleteFile(String uploadFilePath) {
         List<String> splitPath = Arrays.stream(uploadFilePath.split("/")).toList().subList(3, 6);

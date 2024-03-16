@@ -12,11 +12,14 @@ import org.apache.logging.log4j.message.SimpleMessage;
 import org.goormuniv.ponnect.auth.JwtProvider;
 import org.goormuniv.ponnect.auth.PrincipalDetails;
 import org.goormuniv.ponnect.config.SecurityConfig;
+import org.goormuniv.ponnect.domain.Card;
 import org.goormuniv.ponnect.domain.Member;
 import org.goormuniv.ponnect.dto.*;
+import org.goormuniv.ponnect.repository.CardRepository;
 import org.goormuniv.ponnect.repository.MemberRepository;
 import org.goormuniv.ponnect.util.AmazonStorageUtil;
 import org.goormuniv.ponnect.util.ObjectToDtoUtil;
+import org.goormuniv.ponnect.util.QrCodeUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -30,6 +33,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.security.Principal;
 import java.util.*;
@@ -43,10 +47,13 @@ public class MemberService {
     private final JavaMailSender javaMailSender;
 
     private final PasswordEncoder passwordEncoder;
+    private final CardRepository cardRepository;
 
     private final MemberRepository memberRepository;
 
     private final AmazonStorageUtil amazonStorageUtil;
+
+    private final QrCodeUtil qrCodeUtil;
     private final JwtProvider jwtProvider;
 
 
@@ -56,19 +63,14 @@ public class MemberService {
             jwtProvider.validateToken(accessToken.get());
             String email = jwtProvider.extractUserEmail(accessToken.get());
 
-                Optional<Member> member = memberRepository.findByEmail(email);
-                if(member.isPresent()){
-                return new ResponseEntity<>(AuthenticationDto.builder()
-                        .userId(member.get().getId())
-                        .email(member.get().getEmail())
-                        .phone(member.get().getPhone())
-                        .name(member.get().getName())
-                        .build(), HttpStatus.OK);
+            Optional<Member> member = memberRepository.findByEmail(email);
+            if (member.isPresent()) {
+                return new ResponseEntity<>(HttpStatus.OK);
             } else {
-                    return new ResponseEntity<>(ErrMsgDto.builder()
-                            .statusCode(HttpStatus.BAD_REQUEST.value())
-                            .message("유저 정보가 없습니다.").build(), HttpStatus.BAD_REQUEST);
-                }
+                return new ResponseEntity<>(ErrMsgDto.builder()
+                        .statusCode(HttpStatus.BAD_REQUEST.value())
+                        .message("유저 정보가 없습니다.").build(), HttpStatus.BAD_REQUEST);
+            }
         } else {
             return new ResponseEntity<>(ErrMsgDto.builder()
                     .statusCode(HttpStatus.BAD_REQUEST.value())
@@ -94,10 +96,15 @@ public class MemberService {
                     .role("ROLE_USER")
                     .phone(registerDto.getPhone())
                     .build();
-
-
             memberRepository.save(member); //데이터베이스 저장
+            Card card = Card.builder().build(); //초기 사용자의 Card를 생성
+            cardRepository.save(card);
 
+            member.setCard(card);
+
+            ByteArrayOutputStream qrByte = qrCodeUtil.generateQr(member.getId());
+            String qrUrl = amazonStorageUtil.uploadProfileQR(member.getId(), qrByte);
+            member.setQrUrl(qrUrl);
             HttpHeaders httpHeaders = new HttpHeaders();
             String jwtToken = jwtProvider.generateToken(member.getEmail());
             httpHeaders.add("Authorization", jwtToken);
@@ -132,7 +139,7 @@ public class MemberService {
         String newPw = UUID.randomUUID().toString().substring(0, 8).toUpperCase();
         Optional<Member> member = memberRepository.findByEmailAndPhone(userInfoDto.getEmail(), userInfoDto.getPhone());
 
-        if(member.isPresent()){
+        if (member.isPresent()) {
             member.get().setPassword(passwordEncoder.encode(newPw));
         } else {
             return new ResponseEntity<>(ErrMsgDto.builder()
@@ -143,7 +150,7 @@ public class MemberService {
             SMTPMsgDto smtpMsgDto = SMTPMsgDto.builder()
                     .address(member.get().getEmail())
                     .title(member.get().getName() + "님의 PONNECT 임시비밀번호 안내 이메일 입니다.")
-                    .message("안녕하세요. PONNECT 임시 비밀번호 안내 관련 이메일 입니다. " + "[" + member.get().getName()+ "]" + "님의 임시 비밀번호는 "
+                    .message("안녕하세요. PONNECT 임시 비밀번호 안내 관련 이메일 입니다. " + "[" + member.get().getName() + "]" + "님의 임시 비밀번호는 "
                             + newPw + " 입니다.").build();
             SimpleMailMessage simpleMailMessage = new SimpleMailMessage();
             simpleMailMessage.setTo(smtpMsgDto.getAddress());

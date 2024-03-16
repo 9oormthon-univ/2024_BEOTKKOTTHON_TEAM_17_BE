@@ -62,7 +62,12 @@ public class Card extends BaseEntity {
     private String kakao;
 
     @Column
-    private String bgColor; //배경색
+    @Builder.Default
+    private String bgColor = "#ffe3e7"; //배경색
+
+    @Column
+    @Builder.Default
+    private String textColor = "#000"; //텍스트 색상
 
     @OneToOne(mappedBy = "card", cascade = { CascadeType.PERSIST, CascadeType.REMOVE}, orphanRemoval = true)
     private Member member;
