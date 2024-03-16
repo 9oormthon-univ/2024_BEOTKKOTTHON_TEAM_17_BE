@@ -39,4 +39,10 @@ public class CardController {
     public ResponseEntity<?> saveCard(@PathVariable(name="userId") Long userId, Principal principal) {
         return cardService.saveCard(userId, principal);
     }
+
+    @PreAuthorize("isAuthenticated()")
+    @GetMapping("/card/list")
+    public ResponseEntity<?> getAllCards(Principal principal) {
+        return cardService.getAllCard(principal);
+    }
 }

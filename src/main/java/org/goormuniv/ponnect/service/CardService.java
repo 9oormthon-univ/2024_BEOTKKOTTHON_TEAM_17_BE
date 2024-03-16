@@ -147,4 +147,30 @@ public class CardService {
                             .build());
         }
     }
+
+    public ResponseEntity<?> getAllCard (Principal principal) {
+        try {
+            Member member = memberRepository.findByEmail(principal.getName()).orElseThrow();
+
+            List<Follow> follows = followRepository.findAllByFollowing(member);
+
+            List<CardListDto> cardListDtos = follows.stream()
+                    .map(follow -> {
+                        Member followed = follow.getFollowed();
+
+                        return CardListDto.builder()
+                                .userId(followed.getId())
+                                .name(followed.getName())
+                                .phone(followed.getPhone())
+                                .email(followed.getEmail())
+                                .build();
+                    })
+                    .toList();
+            return ResponseEntity.ok(cardListDtos);
+        }catch(Exception e){
+            log.info("회원이 없음");
+            return new ResponseEntity<>( ErrMsgDto.builder()
+                    .message("회원이 존재하지 않습니다.").statusCode(HttpStatus.BAD_REQUEST.value()).build(),HttpStatus.BAD_REQUEST);
+        }
+    }
 }
