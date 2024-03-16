@@ -113,6 +113,8 @@ public class CardService {
         try {
             Member following = memberRepository.findByEmail(principal.getName()).orElseThrow(() -> new NotFoundException("로그인한 회원을 찾을 수 없습니다."));
             Member followed = memberRepository.findById(userId).orElseThrow(() -> new NotFoundException("해당 회원을 찾을 수 없습니다."));
+            if (followRepository.findByFollowingAndFollowed(following, followed) != null)
+                throw new NullPointerException("follow가 이미 존재합니다.");
 
             Follow follow = Follow.builder()
                     .following(following)
@@ -123,7 +125,14 @@ public class CardService {
 
             response.put("followId", follow.getId());
             return ResponseEntity.ok(response);
-        } catch (NotFoundException e) {
+        } catch (NullPointerException e) {
+            log.info("follow가 이미 존재합니다.", e);
+            return ResponseEntity.badRequest().body(ErrMsgDto.builder()
+                    .message(e.getMessage())
+                    .statusCode(HttpStatus.BAD_REQUEST.value())
+                    .build());
+        }
+        catch (NotFoundException e) {
             log.info("회원을 찾을 수 없음", e);
             return ResponseEntity.badRequest().body(ErrMsgDto.builder()
                     .message(e.getMessage())
