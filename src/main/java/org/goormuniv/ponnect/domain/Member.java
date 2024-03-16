@@ -23,13 +23,13 @@ public class Member extends BaseEntity {
     @Column(nullable = false)
     private String phone;
 
-    @Column(nullable = true)
-    private String profileImgUrl;
-
     @Column(nullable = false)
     private String password;
 
     @Column(nullable = false)
     private String role;
+
+    @OneToOne
+    private Follow follow;
 
 }

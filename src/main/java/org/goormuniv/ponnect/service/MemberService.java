@@ -63,7 +63,6 @@ public class MemberService {
                         .email(member.get().getEmail())
                         .phone(member.get().getPhone())
                         .name(member.get().getName())
-                        .profileImgURL(member.get().getProfileImgUrl())
                         .build(), HttpStatus.OK);
             } else {
                     return new ResponseEntity<>(ErrMsgDto.builder()
@@ -81,26 +80,19 @@ public class MemberService {
     }
 
     @Transactional
-    public ResponseEntity<?> register(Principal principal, String signUp, MultipartFile profileImg, HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse) {
+    public ResponseEntity<?> register(Principal principal, RegisterDto registerDto, HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse) {
         if (principal != null) { //SecurityContext에 없다면 예외처리
             return new ResponseEntity<>(ErrMsgDto.builder().message("이미 회원가입이 완료되었습니다.")
                     .statusCode(HttpStatus.BAD_REQUEST.value()).build(), HttpStatus.NOT_ACCEPTABLE);
         }
         try {
-            RegisterDto registerRequest = (RegisterDto) new ObjectToDtoUtil().jsonStrToObj(signUp, RegisterDto.class);
-            String profileImgURL = null;
-
-            if (profileImg != null) {
-                profileImgURL = amazonStorageUtil.uploadProfileImg(registerRequest.getEmail(), profileImg);
-            }
 
             Member member = Member.builder()
-                    .email(registerRequest.getEmail())
-                    .name(registerRequest.getName())
-                    .password(passwordEncoder.encode(registerRequest.getPassword()))
+                    .email(registerDto.getEmail())
+                    .name(registerDto.getName())
+                    .password(passwordEncoder.encode(registerDto.getPassword()))
                     .role("ROLE_USER")
-                    .phone(registerRequest.getPhone())
-                    .profileImgUrl(profileImgURL)
+                    .phone(registerDto.getPhone())
                     .build();
 
 
@@ -114,7 +106,6 @@ public class MemberService {
                     .userId(member.getId())
                     .phone(member.getPhone())
                     .email(member.getEmail())
-                    .profileImgURL(member.getProfileImgUrl())
                     .name(member.getName())
                     .build();
             return new ResponseEntity<>(authenticationDto, httpHeaders, HttpStatus.CREATED);
