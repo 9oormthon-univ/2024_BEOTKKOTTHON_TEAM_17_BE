@@ -24,7 +24,7 @@ public class CardController {
 
     @PreAuthorize("isAuthenticated()")
     @PostMapping("/card")
-    public ResponseEntity<?> createMyCard(@RequestBody CardCreateDto cardCreateDto, Principal principal) throws ServletException, IOException {
+    public ResponseEntity<?> createMyCard(@RequestBody CardCreateDto cardCreateDto, Principal principal) {
         return cardService.createCard(cardCreateDto, principal);
     }
 
@@ -32,5 +32,11 @@ public class CardController {
     @GetMapping("/card")
     public ResponseEntity<?> getMyCard(Principal principal){
         return cardService.getMyCard(principal);
+    }
+
+    @PreAuthorize("isAuthenticated()")
+    @PostMapping("/card/save/{userId}")
+    public ResponseEntity<?> saveCard(@PathVariable(name="userId") Long userId, Principal principal) {
+        return cardService.saveCard(userId, principal);
     }
 }
