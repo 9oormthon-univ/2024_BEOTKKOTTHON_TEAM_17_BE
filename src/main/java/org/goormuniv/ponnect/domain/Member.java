@@ -29,7 +29,5 @@ public class Member extends BaseEntity {
     @Column(nullable = false)
     private String role;
 
-    @OneToOne
-    private Follow follow;
 
 }

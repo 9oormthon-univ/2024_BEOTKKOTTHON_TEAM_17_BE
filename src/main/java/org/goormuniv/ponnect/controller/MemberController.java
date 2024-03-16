@@ -7,18 +7,16 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.goormuniv.ponnect.auth.PrincipalDetails;
 import org.goormuniv.ponnect.dto.ErrMsgDto;
 
+import org.goormuniv.ponnect.dto.RegisterDto;
 import org.goormuniv.ponnect.dto.UserInfoDto;
 import org.goormuniv.ponnect.service.MemberService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.security.Principal;
@@ -34,13 +32,12 @@ public class MemberController {
 
     @PostMapping("/auth/sign-up")
     public ResponseEntity<?> register (Principal principal,
-                                       @RequestPart(value = "signUp") String signUp,
-                                       @RequestPart(required = false, value = "profileImg") MultipartFile profileImg,
+                                       @RequestBody RegisterDto registerDto,
                                        HttpServletRequest httpServletRequest,
                                        HttpServletResponse httpServletResponse
     ) {
         try{
-            return memberService.register(principal, signUp, profileImg, httpServletRequest, httpServletResponse);
+            return memberService.register(principal, registerDto, httpServletRequest, httpServletResponse);
         }
         catch (Exception e){
             log.info(e.getMessage());
