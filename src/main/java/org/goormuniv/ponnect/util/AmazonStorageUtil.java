@@ -22,13 +22,13 @@ public class AmazonStorageUtil {
     @Value("${cloud.aws.s3.bucket}")
     private String bucket;
 
-    private static final String PROFILE_IMAGE = "profileImg";
+    private static final String PROFILE_IMAGE = "profileOR";
 
     private final AmazonS3Client amazonS3Client;
 
 
     //Upload To S3 with Object
-    public String uploadProfileImg(String username, MultipartFile object) throws Exception {
+    public String uploadProfileQR(Long userId, MultipartFile object) throws Exception {
         log.info("업로드 메서드 호출");
         String originalName = object.getOriginalFilename();
         String extension = Objects.requireNonNull(originalName).substring(originalName.lastIndexOf(".") + 1);
@@ -36,7 +36,7 @@ public class AmazonStorageUtil {
         log.info(generateFileName);
 
 
-        String filename = username +  File.separator + PROFILE_IMAGE + File.separator +  generateFileName;
+        String filename = userId +  File.separator + PROFILE_IMAGE + File.separator +  generateFileName;
         log.info(filename);
         ObjectMetadata objectMetadata = new ObjectMetadata();
         objectMetadata.setContentType(object.getContentType() + ";charset=utf-8");
