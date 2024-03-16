@@ -39,7 +39,6 @@ public class LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
                 .userId(member.getId())
                 .email(member.getEmail())
                 .name(member.getName())
-                .profileImgURL(member.getProfileImgUrl())
                 .phone(member.getPhone())
                 .build();
         response.getWriter().write(objectMapper.writeValueAsString(authenticationDto));

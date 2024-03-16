@@ -26,7 +26,6 @@ public class PrincipalDetails implements UserDetails {
     private String name;
     private String email;
     private String phone;
-    private String profileUrl;
     private String password;
     @Builder.Default
     private String role = "ROLE_USER";
