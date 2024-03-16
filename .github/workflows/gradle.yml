@@ -72,6 +72,14 @@ jobs:
           strip_components: 1
           target: '/home/ubuntu'
         #기존 배포 중지
+      - name: Grant execute permission for stop.sh
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.LIGHTSAIL_HOST }}
+          username: ${{env.LIGHTSAIL_USERNAME}}
+          key: ${{ secrets.LIGHTSAIL_SSH_KEY }}
+          script: chmod +x stop.sh
+
       - name: Stop the running server
         uses: appleboy/ssh-action@master
         with:
