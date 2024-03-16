@@ -33,51 +33,41 @@ public class CardService {
     public ResponseEntity<?> createCard(CardCreateDto cardCreateDto, HttpServletRequest httpServletRequest) throws ServletException, IOException {
 
         Optional<String> accessToken = jwtProvider.extractAccessToken(httpServletRequest);
-        if (accessToken.isPresent()) {
-            String email = jwtProvider.extractUserEmail(accessToken.get());
+        String email = jwtProvider.extractUserEmail(accessToken.get());
 
-            Optional<Member> member = memberRepository.findByEmail(email);
-            if (member.isPresent()) {
-                System.out.println("card "+ cardCreateDto.getKakaoTalk());
-                Card card = member.get().getCard();
-                card = Card.builder()
-                        .id(card.getId())
-                        .organisation(cardCreateDto.getOrganization())
-                        .link(cardCreateDto.getLink())
-                        .content(cardCreateDto.getContent())
-                        .instagram(cardCreateDto.getInstagram())
-                        .youtube(cardCreateDto.getYoutube())
-                        .facebook(cardCreateDto.getFacebook())
-                        .x(cardCreateDto.getX())
-                        .tiktok(cardCreateDto.getTictok())
-                        .naver(cardCreateDto.getNaverBlog())
-                        .linkedIn(cardCreateDto.getLinkedIn())
-                        .behance(cardCreateDto.getNotefolio())
-                        .github(cardCreateDto.getGithub())
-                        .kakao(cardCreateDto.getKakaoTalk())
-                        .member(member.get())
-                        .build();
+        Optional<Member> member = memberRepository.findByEmail(email);
+        if (member.isPresent()) {
+            Card card = member.get().getCard();
+            card = Card.builder()
+                    .id(card.getId())
+                    .organisation(cardCreateDto.getOrganization())
+                    .link(cardCreateDto.getLink())
+                    .content(cardCreateDto.getContent())
+                    .instagram(cardCreateDto.getInstagram())
+                    .youtube(cardCreateDto.getYoutube())
+                    .facebook(cardCreateDto.getFacebook())
+                    .x(cardCreateDto.getX())
+                    .tiktok(cardCreateDto.getTictok())
+                    .naver(cardCreateDto.getNaverBlog())
+                    .linkedIn(cardCreateDto.getLinkedIn())
+                    .behance(cardCreateDto.getNotefolio())
+                    .github(cardCreateDto.getGithub())
+                    .kakao(cardCreateDto.getKakaoTalk())
+                    .member(member.get())
+                    .build();
 
-                cardRepository.save(card);
+            cardRepository.save(card);
 
-                Map<String, Object> response = new HashMap<>();
-                response.put("cardId", card.getId());
+            Map<String, Object> response = new HashMap<>();
+            response.put("cardId", card.getId());
 
-                return ResponseEntity.ok().body(response);
-            } else {
-                // 회원이 존재하지 않는 경0우
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                        .body(ErrMsgDto.builder()
-                                .statusCode(HttpStatus.BAD_REQUEST.value())
-                                .message("유저 정보가 없습니다.")
-                                .build());
-            }
+            return ResponseEntity.ok().body(response);
         } else {
-            // 토큰이 없는 경우
+            // 회원이 존재하지 않는 경0우
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                     .body(ErrMsgDto.builder()
                             .statusCode(HttpStatus.BAD_REQUEST.value())
-                            .message("토큰이 유효하지 않습니다.")
+                            .message("유저 정보가 없습니다.")
                             .build());
         }
     }
