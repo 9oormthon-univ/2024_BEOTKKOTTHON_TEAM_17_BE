@@ -24,8 +24,8 @@ public class CardController {
 
     @PreAuthorize("isAuthenticated()")
     @PostMapping("/card")
-    public ResponseEntity<?> createMyCard(@RequestBody CardCreateDto cardCreateDto, HttpServletRequest httpServletRequest) throws ServletException, IOException {
-        return cardService.createCard(cardCreateDto, httpServletRequest);
+    public ResponseEntity<?> createMyCard(@RequestBody CardCreateDto cardCreateDto, Principal principal) throws ServletException, IOException {
+        return cardService.createCard(cardCreateDto, principal);
     }
 
     @PreAuthorize("isAuthenticated()")

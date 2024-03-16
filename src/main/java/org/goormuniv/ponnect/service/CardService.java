@@ -30,14 +30,13 @@ public class CardService {
     private final JwtProvider jwtProvider;
 
     @Transactional
-    public ResponseEntity<?> createCard(CardCreateDto cardCreateDto, HttpServletRequest httpServletRequest) throws ServletException, IOException {
+    public ResponseEntity<?> createCard(CardCreateDto cardCreateDto, Principal principal) throws ServletException, IOException {
 
-        Optional<String> accessToken = jwtProvider.extractAccessToken(httpServletRequest);
-        String email = jwtProvider.extractUserEmail(accessToken.get());
+        Map<String, Object> response = new HashMap<>();
 
-        Optional<Member> member = memberRepository.findByEmail(email);
-        if (member.isPresent()) {
-            Card card = member.get().getCard();
+        try {
+            Member member = memberRepository.findByEmail(principal.getName()).orElseThrow();
+            Card card = member.getCard();
             card = Card.builder()
                     .id(card.getId())
                     .organisation(cardCreateDto.getOrganization())
@@ -53,23 +52,20 @@ public class CardService {
                     .behance(cardCreateDto.getNotefolio())
                     .github(cardCreateDto.getGithub())
                     .kakao(cardCreateDto.getKakaoTalk())
-                    .member(member.get())
+                    .member(member)
                     .build();
 
             cardRepository.save(card);
 
-            Map<String, Object> response = new HashMap<>();
             response.put("cardId", card.getId());
 
-            return ResponseEntity.ok().body(response);
-        } else {
-            // 회원이 존재하지 않는 경0우
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body(ErrMsgDto.builder()
-                            .statusCode(HttpStatus.BAD_REQUEST.value())
-                            .message("유저 정보가 없습니다.")
-                            .build());
+        } catch (Exception e){
+            log.info("회원이 없음");
+            return new ResponseEntity<>( ErrMsgDto.builder()
+                    .message("회원이 존재하지 않습니다.").statusCode(HttpStatus.BAD_REQUEST.value()).build(),HttpStatus.BAD_REQUEST);
+
         }
+        return ResponseEntity.ok().body(response);
     }
 
     public ResponseEntity<?> getMyCard(Principal principal) {
