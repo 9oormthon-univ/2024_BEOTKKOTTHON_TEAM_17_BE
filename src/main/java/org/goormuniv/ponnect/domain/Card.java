@@ -69,6 +69,7 @@ public class Card extends BaseEntity {
 
     @OneToMany(mappedBy = "card", fetch = FetchType.LAZY)
     @ToString.Exclude
+    @Builder.Default
     private List<Media> mediaList = new ArrayList<Media>();
 
 }
