@@ -10,4 +10,5 @@ import java.util.Optional;
 
 public interface FollowRepository  extends JpaRepository<Follow, Long> {
     List<Follow> findAllByFollowing(Member following);
+    Follow findByFollowingAndFollowed(Member following, Member followed);
 }
