@@ -174,6 +174,7 @@ public class CardService {
                                 .email(followed.getEmail())
                                 .qrUrl(followed.getQrUrl())
                                 .organization(followed.getCard().getOrganization())
+                                .instagram(followed.getCard().getInstagram())
                                 .link(followed.getCard().getLink())
                                 .content(followed.getCard().getInstagram())
                                 .youtube(followed.getCard().getYoutube())

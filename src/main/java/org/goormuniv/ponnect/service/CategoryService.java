@@ -122,7 +122,7 @@ public class CategoryService {
                                 .email(card.getMember().getEmail())
                                 .qrUrl(card.getMember().getQrUrl())
                                 .instagram(card.getInstagram())
-                                .organization(card.getOrganisation())
+                                .organization(card.getOrganization())
                                 .link(card.getLink())
                                 .content(card.getInstagram())
                                 .youtube(card.getYoutube())
@@ -162,6 +162,7 @@ public class CategoryService {
                     criteriaBuilder.like(cardJoin.get("email"), "%" + kw + "%"),      // 내용
                     criteriaBuilder.like(cardJoin.get("phone"), "%" + kw + "%"),
                     criteriaBuilder.like(CardCategoryJoin.get("content"), "%" + kw + "%"),
+                    criteriaBuilder.like(CardCategoryJoin.get("organization"), "%" + kw + "%"),
                     criteriaBuilder.like(CardCategoryJoin.get("instagram"), "%" + kw + "%"),
                     criteriaBuilder.like(CardCategoryJoin.get("youtube"), "%" + kw + "%"),
                     criteriaBuilder.like(CardCategoryJoin.get("facebook"), "%" + kw + "%"),
