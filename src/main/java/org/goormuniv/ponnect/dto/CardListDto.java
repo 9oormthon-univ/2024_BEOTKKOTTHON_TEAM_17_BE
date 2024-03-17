@@ -2,6 +2,7 @@ package org.goormuniv.ponnect.dto;
 
 import lombok.*;
 
+@Deprecated
 @Getter
 @Setter
 @ToString

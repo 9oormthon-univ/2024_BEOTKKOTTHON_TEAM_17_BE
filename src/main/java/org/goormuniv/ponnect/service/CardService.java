@@ -1,7 +1,7 @@
 package org.goormuniv.ponnect.service;
 
 import com.amazonaws.services.kms.model.NotFoundException;
-import jakarta.servlet.ServletException;
+import jakarta.persistence.criteria.*;
 import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -10,19 +10,16 @@ import org.goormuniv.ponnect.domain.Follow;
 import org.goormuniv.ponnect.domain.Member;
 import org.goormuniv.ponnect.dto.CardCreateDto;
 import org.goormuniv.ponnect.dto.CardDto;
-import org.goormuniv.ponnect.dto.CardListDto;
 import org.goormuniv.ponnect.dto.ErrMsgDto;
 import org.goormuniv.ponnect.repository.CardRepository;
 import org.goormuniv.ponnect.repository.FollowRepository;
 import org.goormuniv.ponnect.repository.MemberRepository;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-import java.io.IOException;
-import java.util.Optional;
 import java.security.Principal;
 import java.util.*;
-import java.util.stream.Collectors;
 
 @Service
 @AllArgsConstructor
@@ -42,7 +39,7 @@ public class CardService {
             Card card = member.getCard();
             card = Card.builder()
                     .id(card.getId())
-                    .organisation(cardCreateDto.getOrganization())
+                    .organization(cardCreateDto.getOrganization())
                     .link(cardCreateDto.getLink())
                     .content(cardCreateDto.getContent())
                     .instagram(cardCreateDto.getInstagram())
@@ -63,6 +60,7 @@ public class CardService {
             response.put("cardId", card.getId());
 
         } catch (Exception e){
+            log.error(e.getMessage());
             log.info("회원이 없음");
             return new ResponseEntity<>( ErrMsgDto.builder()
                     .message("회원이 존재하지 않습니다.").statusCode(HttpStatus.BAD_REQUEST.value()).build(),HttpStatus.BAD_REQUEST);
@@ -82,7 +80,7 @@ public class CardService {
                     .email(member.getEmail())
                     .phone(member.getPhone())
                     .qrUrl(member.getQrUrl())
-                    .organisation(member.getCard().getOrganisation())
+                    .organization(member.getCard().getOrganization())
                     .link(member.getCard().getLink())
                     .content(member.getCard().getInstagram())
                     .youtube(member.getCard().getYoutube())
@@ -113,8 +111,16 @@ public class CardService {
         try {
             Member following = memberRepository.findByEmail(principal.getName()).orElseThrow(() -> new NotFoundException("로그인한 회원을 찾을 수 없습니다."));
             Member followed = memberRepository.findById(userId).orElseThrow(() -> new NotFoundException("해당 회원을 찾을 수 없습니다."));
-            if (followRepository.findByFollowingAndFollowed(following, followed) != null)
+            if(following.getId().equals(followed.getId())){ //자기자신을 팔로우 한다고 한다면 400 반환
+                return ResponseEntity.badRequest().body(ErrMsgDto.builder()
+                        .message("자신의 명함을 저장할 수 업습니다.")
+                        .statusCode(HttpStatus.BAD_REQUEST.value())
+                        .build());
+            }
+
+            if (followRepository.existsByFollowingIdAndFollowedId(following.getId(), followed.getId()))
                 throw new NullPointerException("follow가 이미 존재합니다.");
+
 
             Follow follow = Follow.builder()
                     .following(following)
@@ -148,29 +154,80 @@ public class CardService {
         }
     }
 
-    public ResponseEntity<?> getAllCard (Principal principal) {
+    public ResponseEntity<?> getAllCard (Principal principal, String keyword) {
+        log.info("search : " + keyword);
         try {
             Member member = memberRepository.findByEmail(principal.getName()).orElseThrow();
 
-            List<Follow> follows = followRepository.findAllByFollowing(member);
+            log.info(member.getEmail());
+            Specification<Follow> specification = search(keyword, member.getId()); //여기서 에러가 나는것 같다.
 
-            List<CardListDto> cardListDtos = follows.stream()
+            List<CardDto> cardDtos = followRepository.findAll(specification).stream()
                     .map(follow -> {
                         Member followed = follow.getFollowed();
-
-                        return CardListDto.builder()
+                        return CardDto.builder()
                                 .userId(followed.getId())
                                 .name(followed.getName())
                                 .phone(followed.getPhone())
                                 .email(followed.getEmail())
+                                .qrUrl(followed.getQrUrl())
+                                .organization(followed.getCard().getOrganization())
+                                .link(followed.getCard().getLink())
+                                .content(followed.getCard().getInstagram())
+                                .youtube(followed.getCard().getYoutube())
+                                .facebook(followed.getCard().getFacebook())
+                                .x(followed.getCard().getX())
+                                .tiktok(followed.getCard().getTiktok())
+                                .naver(followed.getCard().getNaver())
+                                .linkedIn(followed.getCard().getLinkedIn())
+                                .notefolio(followed.getCard().getNotefolio())
+                                .behance(followed.getCard().getBehance())
+                                .github(followed.getCard().getGithub())
+                                .kakao(followed.getCard().getKakao())
+                                .bgColor(followed.getCard().getBgColor())
+                                .textColor(followed.getCard().getTextColor())
                                 .build();
                     })
                     .toList();
-            return ResponseEntity.ok(cardListDtos);
+
+            return ResponseEntity.ok(cardDtos);
         }catch(Exception e){
             log.info("회원이 없음");
             return new ResponseEntity<>( ErrMsgDto.builder()
                     .message("회원이 존재하지 않습니다.").statusCode(HttpStatus.BAD_REQUEST.value()).build(),HttpStatus.BAD_REQUEST);
         }
     }
+
+    private Specification<Follow> search(String kw, Long memberId) {
+        return (Root<Follow> root, CriteriaQuery<?> criteriaQuery, CriteriaBuilder criteriaBuilder) -> {
+            criteriaQuery.distinct(true);
+            Predicate followIdPredicate =  criteriaBuilder.equal(root.get("following").get("id"), memberId);
+            Join<Follow, Member> followedJoin = root.join("followed", JoinType.INNER);
+            Join<Member, Card> cardJoin = followedJoin.join("card", JoinType.INNER);
+            Predicate cardPredicate =  criteriaBuilder.equal(cardJoin.get("id"), followedJoin.get("id"));
+
+
+            Predicate searchPredicate = criteriaBuilder.or(criteriaBuilder.like(followedJoin.get("name"), "%" + kw + "%"), // 제목
+                    criteriaBuilder.like(followedJoin.get("email"), "%" + kw + "%"),      // 내용
+                    criteriaBuilder.like(followedJoin.get("phone"), "%" + kw + "%"),
+                    criteriaBuilder.like(cardJoin.get("organization"), "%" + kw + "%"),
+                    criteriaBuilder.like(cardJoin.get("content"), "%" + kw + "%"),
+                    criteriaBuilder.like(cardJoin.get("instagram"), "%" + kw + "%"),
+                    criteriaBuilder.like(cardJoin.get("youtube"), "%" + kw + "%"),
+                    criteriaBuilder.like(cardJoin.get("facebook"), "%" + kw + "%"),
+                    criteriaBuilder.like(cardJoin.get("x"), "%" + kw + "%"),
+                    criteriaBuilder.like(cardJoin.get("tiktok"), "%" + kw + "%"),
+                    criteriaBuilder.like(cardJoin.get("naver"), "%" + kw + "%"),
+                    criteriaBuilder.like(cardJoin.get("linkedIn"), "%" + kw + "%"),
+                    criteriaBuilder.like(cardJoin.get("notefolio"), "%" + kw + "%"),
+                    criteriaBuilder.like(cardJoin.get("behance"), "%" + kw + "%"),
+                    criteriaBuilder.like(cardJoin.get("github"), "%" + kw + "%"),
+                    criteriaBuilder.like(cardJoin.get("kakao"), "%" + kw + "%")
+            );  //script
+
+            return criteriaBuilder.and(followIdPredicate, cardPredicate, searchPredicate);
+        };
+    }
+
+
 }
