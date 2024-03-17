@@ -28,8 +28,4 @@ public class Follow extends BaseEntity {
     private Member followed;
 
 
-    @OneToOne
-    @JoinColumn(name = "category_id")
-    private Category category;
-
 }

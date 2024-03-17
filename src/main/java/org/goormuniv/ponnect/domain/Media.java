@@ -18,7 +18,7 @@ public class Media extends BaseEntity {
     private Long id;
 
     @Column
-    private String mediaUrl;
+    private String type;
 
     @Column
     private String posX;
