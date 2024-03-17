@@ -3,6 +3,9 @@ package org.goormuniv.ponnect.domain;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.util.ArrayList;
+import java.util.List;
+
 
 @Entity
 @AllArgsConstructor
@@ -22,13 +25,12 @@ public class Category {
 
     @ManyToOne(fetch = FetchType.LAZY )
     @JoinColumn(name = "member_id")
-    private Member member; //유저 PK
+    private Member member; // 카테고리는
 
 
 
-
-    @OneToOne(mappedBy = "category", cascade = { CascadeType.PERSIST, CascadeType.REMOVE}, orphanRemoval = true)
+    @OneToMany(mappedBy = "category", cascade = { CascadeType.PERSIST, CascadeType.REMOVE}, orphanRemoval = true)
     @ToString.Exclude
-    private Follow follow;
+    private List<CardCategory> CardCategory = new ArrayList<>();
 
 }
