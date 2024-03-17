@@ -15,7 +15,7 @@ public class CardDto {
     private String email;
     private String phone;
     private String qrUrl;
-    private String organisation; //조직
+    private String organization; //조직
     private String link; //링크
     private String content; //추가 글
     private String instagram;

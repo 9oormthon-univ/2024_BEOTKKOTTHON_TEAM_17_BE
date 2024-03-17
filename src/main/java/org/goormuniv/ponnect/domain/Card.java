@@ -21,7 +21,7 @@ public class Card extends BaseEntity {
     private Long id;
 
     @Column
-    private String organisation; //조직
+    private String organization; //조직
 
     @Column
     private String link; //링크
