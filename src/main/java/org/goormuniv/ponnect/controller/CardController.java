@@ -42,7 +42,7 @@ public class CardController {
 
     @PreAuthorize("isAuthenticated()")
     @GetMapping("/card/list")
-    public ResponseEntity<?> getAllCards(Principal principal) {
-        return cardService.getAllCard(principal);
+    public ResponseEntity<?> getAllCards(Principal principal,@RequestParam(required = false, defaultValue = "", value = "search") String search ) {
+        return cardService.getAllCard(principal, search);
     }
 }
