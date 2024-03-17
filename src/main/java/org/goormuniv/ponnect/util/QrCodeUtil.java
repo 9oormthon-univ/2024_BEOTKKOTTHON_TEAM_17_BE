@@ -19,7 +19,7 @@ public class QrCodeUtil {
         // QR 정보
         int width = 200;
         int height = 200;
-        String url = "https://ponnect.netilfy.app/redirect?memberId=" + memberId;
+        String url = "https://ponnect.netlify.app/redirect?memberId=" + memberId;
 
         BitMatrix encode = new MultiFormatWriter()
                 .encode(url, BarcodeFormat.QR_CODE, width, height);

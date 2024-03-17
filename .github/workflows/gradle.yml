@@ -10,8 +10,8 @@ name: PONNECT CI with Gradle
 on: #이벤트 감지
   pull_request:
     types: [closed]
-  # push:
-  #   branches : ["develop"]
+  push:
+     branches : ["develop"]
   workflow_dispatch:
 env:
   LIGHTSAIL_SSH_KEY: ${{ secrets.LIGHTSAIL_SSH_KEY }}
