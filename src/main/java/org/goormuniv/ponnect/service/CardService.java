@@ -136,14 +136,14 @@ public class CardService {
         } catch (NullPointerException e) {
             log.info("follow가 이미 존재합니다.", e);
             return ResponseEntity.badRequest().body(ErrMsgDto.builder()
-                    .message(e.getMessage())
+                    .message("오류가 발생했습니다.")
                     .statusCode(HttpStatus.BAD_REQUEST.value())
                     .build());
         }
         catch (NotFoundException e) {
             log.info("회원을 찾을 수 없음", e);
             return ResponseEntity.badRequest().body(ErrMsgDto.builder()
-                    .message(e.getMessage())
+                    .message("오류가 발생했습니다.")
                     .statusCode(HttpStatus.BAD_REQUEST.value())
                     .build());
         } catch(Exception e){
@@ -173,6 +173,7 @@ public class CardService {
                                 .phone(followed.getPhone())
                                 .email(followed.getEmail())
                                 .qrUrl(followed.getQrUrl())
+                                .cardId(followed.getCard().getId())
                                 .organization(followed.getCard().getOrganization())
                                 .instagram(followed.getCard().getInstagram())
                                 .link(followed.getCard().getLink())
@@ -232,5 +233,22 @@ public class CardService {
         };
     }
 
+    public  ResponseEntity<?> deleteCard (Long userId, Principal principal) {
+        try {
+            Member following = memberRepository.findByEmail(principal.getName()).orElseThrow();
+
+            Follow follow = followRepository.findByFollowingIdAndFollowedId(following.getId(), userId);
+
+            if (follow == null) throw new NullPointerException("해당 팔로우가 존재하지 않습니다.");
+
+            followRepository.delete(follow);
+
+            return ResponseEntity.ok().body("delete complete");
+        } catch(NullPointerException e){
+            log.info("해당 팔로우가 존재하지 않음", e);
+            return new ResponseEntity<>( ErrMsgDto.builder()
+                    .message("오류가 발생했습니다.").statusCode(HttpStatus.BAD_REQUEST.value()).build(),HttpStatus.BAD_REQUEST);
+        }
+    }
 
 }

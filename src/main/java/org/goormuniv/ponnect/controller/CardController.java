@@ -23,7 +23,7 @@ public class CardController {
     private final CardService cardService;
 
     @PreAuthorize("isAuthenticated()")
-    @PostMapping("/card")
+    @PatchMapping("/card")
     public ResponseEntity<?> createMyCard(@RequestBody CardCreateDto cardCreateDto, Principal principal) {
         return cardService.createCard(cardCreateDto, principal);
     }
@@ -44,5 +44,11 @@ public class CardController {
     @GetMapping("/card/list")
     public ResponseEntity<?> getAllCards(Principal principal,@RequestParam(required = false, defaultValue = "", value = "search") String search ) {
         return cardService.getAllCard(principal, search);
+    }
+
+    @PreAuthorize("isAuthenticated()")
+    @DeleteMapping("/card/{userId}")
+    public ResponseEntity<?> deleteCard(@PathVariable(name="userId") Long userId, Principal principal) {
+        return cardService.deleteCard(userId, principal);
     }
 }
