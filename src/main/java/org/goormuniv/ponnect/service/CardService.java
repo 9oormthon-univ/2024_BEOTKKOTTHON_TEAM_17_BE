@@ -173,6 +173,7 @@ public class CardService {
                                 .phone(followed.getPhone())
                                 .email(followed.getEmail())
                                 .qrUrl(followed.getQrUrl())
+                                .cardId(followed.getCard().getId())
                                 .organization(followed.getCard().getOrganization())
                                 .instagram(followed.getCard().getInstagram())
                                 .link(followed.getCard().getLink())
