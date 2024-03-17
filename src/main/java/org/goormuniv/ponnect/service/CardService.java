@@ -18,6 +18,7 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+
 import java.security.Principal;
 import java.util.*;
 
@@ -82,6 +83,7 @@ public class CardService {
                     .qrUrl(member.getQrUrl())
                     .organization(member.getCard().getOrganization())
                     .link(member.getCard().getLink())
+                    .instagram(member.getCard().getInstagram())
                     .content(member.getCard().getInstagram())
                     .youtube(member.getCard().getYoutube())
                     .facebook(member.getCard().getFacebook())

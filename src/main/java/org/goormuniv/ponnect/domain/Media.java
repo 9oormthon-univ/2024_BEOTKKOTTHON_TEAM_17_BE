@@ -18,17 +18,17 @@ public class Media extends BaseEntity {
     private Long id;
 
     @Column
-    private String type;
+    private String type; //스티커의 종류
 
     @Column
-    private String posX;
+    private String posX; //x좌표
 
     @Column
-    private String posY;
+    private String posY; //y좌표
 
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn (name = "card_id")
     @ToString.Exclude
-    private Card card;
+    private Card card; //속한 명함 ID
 }

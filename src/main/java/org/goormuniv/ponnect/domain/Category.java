@@ -19,13 +19,13 @@ public class Category {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column
+    @Column(nullable = false)
     private String categoryName;
 
 
     @ManyToOne(fetch = FetchType.LAZY )
     @JoinColumn(name = "member_id")
-    private Member member; // 카테고리는
+    private Member member;
 
 
 
