@@ -14,4 +14,6 @@ public interface FollowRepository  extends JpaRepository<Follow, Long> {
     Boolean existsByFollowingIdAndFollowedId(Long following, Long followed);
 
     List<Follow> findAll(Specification<Follow> spec);
+
+    Follow findByFollowingIdAndFollowedId(Long following, Long followed);
 }
