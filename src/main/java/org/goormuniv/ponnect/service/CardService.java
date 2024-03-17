@@ -10,6 +10,7 @@ import org.goormuniv.ponnect.domain.Follow;
 import org.goormuniv.ponnect.domain.Member;
 import org.goormuniv.ponnect.dto.CardCreateDto;
 import org.goormuniv.ponnect.dto.CardDto;
+import org.goormuniv.ponnect.dto.ColorDto;
 import org.goormuniv.ponnect.dto.ErrMsgDto;
 import org.goormuniv.ponnect.repository.CardRepository;
 import org.goormuniv.ponnect.repository.FollowRepository;
@@ -19,8 +20,10 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import java.awt.*;
 import java.security.Principal;
 import java.util.*;
+import java.util.List;
 
 @Service
 @AllArgsConstructor
@@ -233,7 +236,7 @@ public class CardService {
         };
     }
 
-    public  ResponseEntity<?> deleteCard (Long userId, Principal principal) {
+    public ResponseEntity<?> deleteCard (Long userId, Principal principal) {
         try {
             Member following = memberRepository.findByEmail(principal.getName()).orElseThrow();
 
@@ -246,6 +249,47 @@ public class CardService {
             return ResponseEntity.ok().body("delete complete");
         } catch(NullPointerException e){
             log.info("해당 팔로우가 존재하지 않음", e);
+            return new ResponseEntity<>( ErrMsgDto.builder()
+                    .message("오류가 발생했습니다.").statusCode(HttpStatus.BAD_REQUEST.value()).build(),HttpStatus.BAD_REQUEST);
+        }
+    }
+
+    public ResponseEntity<?> changeColor (ColorDto colorDto, Principal principal) {
+        try {
+            Member member = memberRepository.findByEmail(principal.getName()).orElseThrow(() -> new NoSuchElementException("회원 정보를 찾을 수 없습니다."));
+
+            Card card = cardRepository.findByMemberId(member.getId()).orElseThrow(() -> new NoSuchElementException("카드 정보를 찾을 수 없습니다."));
+
+            Card updateCard = Card.builder()
+                    .id(card.getId())
+                    .organization(card.getOrganization())
+                    .link(card.getLink())
+                    .content(card.getContent())
+                    .instagram(card.getInstagram())
+                    .youtube(card.getYoutube())
+                    .facebook(card.getFacebook())
+                    .x(card.getX())
+                    .tiktok(card.getTiktok())
+                    .naver(card.getNaver())
+                    .linkedIn(card.getLinkedIn())
+                    .notefolio(card.getNotefolio())
+                    .behance(card.getBehance())
+                    .github(card.getGithub())
+                    .bgColor(colorDto.getBgColor())
+                    .textColor(colorDto.getTextColor())
+                    .member(member)
+                    .build();
+
+            cardRepository.save(updateCard);
+
+            return ResponseEntity.ok().body("save complete");
+
+        } catch(NoSuchElementException e){
+            log.info("회원 정보가 없음"+ e.getMessage());
+            return new ResponseEntity<>( ErrMsgDto.builder()
+                    .message("오류가 발생했습니다.").statusCode(HttpStatus.BAD_REQUEST.value()).build(),HttpStatus.BAD_REQUEST);
+        } catch(Exception e) {
+            log.info("오류 발생");
             return new ResponseEntity<>( ErrMsgDto.builder()
                     .message("오류가 발생했습니다.").statusCode(HttpStatus.BAD_REQUEST.value()).build(),HttpStatus.BAD_REQUEST);
         }

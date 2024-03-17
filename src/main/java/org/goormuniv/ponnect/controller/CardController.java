@@ -5,6 +5,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.goormuniv.ponnect.auth.PrincipalDetails;
 import org.goormuniv.ponnect.dto.CardCreateDto;
+import org.goormuniv.ponnect.dto.ColorDto;
 import org.goormuniv.ponnect.repository.CardRepository;
 import org.goormuniv.ponnect.service.CardService;
 import org.springframework.http.ResponseEntity;
@@ -50,5 +51,11 @@ public class CardController {
     @DeleteMapping("/card/{userId}")
     public ResponseEntity<?> deleteCard(@PathVariable(name="userId") Long userId, Principal principal) {
         return cardService.deleteCard(userId, principal);
+    }
+
+    @PreAuthorize("isAuthenticated()")
+    @PatchMapping("/card/color")
+    public ResponseEntity<?> changeColor(@RequestBody ColorDto colorDto, Principal principal) {
+        return cardService.changeColor(colorDto, principal);
     }
 }
