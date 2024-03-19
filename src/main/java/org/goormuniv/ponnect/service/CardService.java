@@ -101,6 +101,14 @@ public class CardService {
                     .kakao(member.getCard().getKakao())
                     .bgColor(member.getCard().getBgColor())
                     .textColor(member.getCard().getTextColor())
+                    .stickerDtoList(mediaRepository.findAllByCardId(member.getCard().getId()).stream()
+                            .map(media -> StickerDto.builder()
+                                    .type(media.getType())
+                                    .posX(media.getPosX())
+                                    .posY(media.getPosY())
+                                    .zindex(media.getZIndex())
+                                    .build())
+                            .collect(Collectors.toList()))
                     .build();
 
         }catch(Exception e){
@@ -194,6 +202,14 @@ public class CardService {
                                 .kakao(followed.getCard().getKakao())
                                 .bgColor(followed.getCard().getBgColor())
                                 .textColor(followed.getCard().getTextColor())
+                                .stickerDtoList(mediaRepository.findAllByCardId(followed.getCard().getId()).stream()
+                                        .map(media -> StickerDto.builder()
+                                                .type(media.getType())
+                                                .posX(media.getPosX())
+                                                .posY(media.getPosY())
+                                                .zindex(media.getZIndex())
+                                                .build())
+                                        .collect(Collectors.toList()))
                                 .build();
                     })
                     .toList();
@@ -304,11 +320,14 @@ public class CardService {
             if (mediaList != null)
                 mediaRepository.deleteAll(mediaList);
 
+            log.info("stic"+ stickerDtos);
+
             List<Media> medias = stickerDtos.stream()
                     .map(stickerDto -> Media.builder()
                             .type(stickerDto.getType())
                             .posX(stickerDto.getPosX())
                             .posY(stickerDto.getPosY())
+                            .zIndex(stickerDto.getZindex())
                             .card(card)
                             .build())
                     .collect(Collectors.toList());

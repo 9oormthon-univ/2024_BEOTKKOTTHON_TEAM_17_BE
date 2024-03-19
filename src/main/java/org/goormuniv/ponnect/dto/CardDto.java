@@ -2,6 +2,8 @@ package org.goormuniv.ponnect.dto;
 
 import lombok.*;
 
+import java.util.List;
+
 @Getter
 @Setter
 @ToString
@@ -31,4 +33,5 @@ public class CardDto {
     private String kakao;
     private String bgColor;
     private String textColor;
+    private List<StickerDto> stickerDtoList;
 }
