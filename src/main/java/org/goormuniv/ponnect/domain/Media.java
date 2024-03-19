@@ -26,6 +26,9 @@ public class Media extends BaseEntity {
     @Column
     private Double posY; //y좌표
 
+    @Column
+    private Integer zIndex;  // z-Index
+
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn (name = "card_id")
