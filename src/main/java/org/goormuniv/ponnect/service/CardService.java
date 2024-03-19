@@ -7,13 +7,12 @@ import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.goormuniv.ponnect.domain.Card;
 import org.goormuniv.ponnect.domain.Follow;
+import org.goormuniv.ponnect.domain.Media;
 import org.goormuniv.ponnect.domain.Member;
-import org.goormuniv.ponnect.dto.CardCreateDto;
-import org.goormuniv.ponnect.dto.CardDto;
-import org.goormuniv.ponnect.dto.ColorDto;
-import org.goormuniv.ponnect.dto.ErrMsgDto;
+import org.goormuniv.ponnect.dto.*;
 import org.goormuniv.ponnect.repository.CardRepository;
 import org.goormuniv.ponnect.repository.FollowRepository;
+import org.goormuniv.ponnect.repository.MediaRepository;
 import org.goormuniv.ponnect.repository.MemberRepository;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;
@@ -24,6 +23,7 @@ import java.awt.*;
 import java.security.Principal;
 import java.util.*;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @AllArgsConstructor
@@ -32,6 +32,7 @@ public class CardService {
     private final CardRepository cardRepository;
     private final MemberRepository memberRepository;
     private final FollowRepository followRepository;
+    private final MediaRepository mediaRepository;
 
     @Transactional
     public ResponseEntity<?> createCard(CardCreateDto cardCreateDto, Principal principal) {
@@ -286,6 +287,37 @@ public class CardService {
 
         } catch(NoSuchElementException e){
             log.info("회원 정보가 없음"+ e.getMessage());
+            return new ResponseEntity<>( ErrMsgDto.builder()
+                    .message("오류가 발생했습니다.").statusCode(HttpStatus.BAD_REQUEST.value()).build(),HttpStatus.BAD_REQUEST);
+        } catch(Exception e) {
+            log.info("오류 발생");
+            return new ResponseEntity<>( ErrMsgDto.builder()
+                    .message("오류가 발생했습니다.").statusCode(HttpStatus.BAD_REQUEST.value()).build(),HttpStatus.BAD_REQUEST);
+        }
+    }
+
+    public ResponseEntity<?> changeSticker (List<StickerDto> stickerDtos, Principal principal) {
+        try {
+            Member member = memberRepository.findByEmail(principal.getName()).orElseThrow(() -> new NoSuchElementException("회원 정보를 찾을 수 없음"));
+            Card card = cardRepository.findByMemberId(member.getId()).orElseThrow(() -> new NoSuchElementException("카드 정보를 찾을 수 없음"));
+            List<Media> mediaList = mediaRepository.findAllByCardId(card.getId());
+            if (mediaList != null)
+                mediaRepository.deleteAll(mediaList);
+
+            List<Media> medias = stickerDtos.stream()
+                    .map(stickerDto -> Media.builder()
+                            .type(stickerDto.getType())
+                            .posX(stickerDto.getPosX())
+                            .posY(stickerDto.getPosY())
+                            .card(card)
+                            .build())
+                    .collect(Collectors.toList());
+
+            mediaRepository.saveAll(medias);
+
+            return ResponseEntity.ok().body("save complete");
+        } catch(NoSuchElementException e) {
+            log.info("오류 정보: "+ e.getMessage());
             return new ResponseEntity<>( ErrMsgDto.builder()
                     .message("오류가 발생했습니다.").statusCode(HttpStatus.BAD_REQUEST.value()).build(),HttpStatus.BAD_REQUEST);
         } catch(Exception e) {
