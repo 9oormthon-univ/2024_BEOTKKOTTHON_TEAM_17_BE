@@ -6,6 +6,7 @@ import lombok.RequiredArgsConstructor;
 import org.goormuniv.ponnect.auth.PrincipalDetails;
 import org.goormuniv.ponnect.dto.CardCreateDto;
 import org.goormuniv.ponnect.dto.ColorDto;
+import org.goormuniv.ponnect.dto.StickerDto;
 import org.goormuniv.ponnect.repository.CardRepository;
 import org.goormuniv.ponnect.service.CardService;
 import org.springframework.http.ResponseEntity;
@@ -15,6 +16,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
 import java.security.Principal;
+import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
@@ -57,5 +59,11 @@ public class CardController {
     @PatchMapping("/card/color")
     public ResponseEntity<?> changeColor(@RequestBody ColorDto colorDto, Principal principal) {
         return cardService.changeColor(colorDto, principal);
+    }
+
+    @PreAuthorize("isAuthenticated()")
+    @PostMapping("/card/sticker")
+    public ResponseEntity<?> changeSticker (@RequestBody List<StickerDto> stickerDtos, Principal principal) {
+        return cardService.changeSticker(stickerDtos, principal);
     }
 }

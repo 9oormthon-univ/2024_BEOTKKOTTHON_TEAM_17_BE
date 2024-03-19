@@ -21,10 +21,10 @@ public class Media extends BaseEntity {
     private String type; //스티커의 종류
 
     @Column
-    private String posX; //x좌표
+    private Double posX; //x좌표
 
     @Column
-    private String posY; //y좌표
+    private Double posY; //y좌표
 
 
     @ManyToOne(fetch = FetchType.LAZY)
