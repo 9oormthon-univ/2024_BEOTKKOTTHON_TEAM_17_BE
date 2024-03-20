@@ -6,6 +6,7 @@ import lombok.extern.slf4j.Slf4j;
 import okhttp3.Response;
 import org.goormuniv.ponnect.dto.CardToCategoryDto;
 import org.goormuniv.ponnect.dto.CategoryCreateDto;
+import org.goormuniv.ponnect.dto.CategoryRenameDto;
 import org.goormuniv.ponnect.service.CategoryService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -52,6 +53,20 @@ public class CategoryController {
     @GetMapping("/card/category/not-belong/{categoryId}")
     public ResponseEntity<?> getNotBelongCards(Principal principal, @PathVariable(name = "categoryId") Long categoryId, @RequestParam(required = false, defaultValue = "", value = "search") String search ) {
         return categoryService.getNotBelongCards(categoryId, principal, search);
+    }
+
+
+
+    @PreAuthorize("isAuthenticated()")
+    @PatchMapping("/card/category/{categoryId}")
+    public ResponseEntity<?> renameCategoryName(Principal principal, @PathVariable Long categoryId, @RequestBody CategoryRenameDto categoryRenameDto){
+        return categoryService.renameCategoryName(principal, categoryId, categoryRenameDto);
+    }
+
+    @PreAuthorize("isAuthenticated()")
+    @DeleteMapping("/card/category/{categoryId}")
+    public ResponseEntity<?> removeCategory(Principal principal, @PathVariable Long categoryId){
+        return categoryService.removeCategory(principal, categoryId);
     }
 
 
