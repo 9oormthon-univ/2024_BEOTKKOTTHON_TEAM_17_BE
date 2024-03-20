@@ -59,6 +59,15 @@ public class CardService {
 
             cardRepository.save(card);
 
+            if (cardCreateDto.getName() != null)
+                member.setName(cardCreateDto.getName());
+            if (cardCreateDto.getPhone() != null)
+                member.setPhone(cardCreateDto.getPhone());
+            if (cardCreateDto.getEmail() != null)
+                member.setEmail(cardCreateDto.getEmail());
+
+            memberRepository.save(member);
+
             response.put("cardId", card.getId());
 
         } catch (Exception e){
@@ -284,6 +293,7 @@ public class CardService {
 
             Card card = cardRepository.findByMemberId(member.getId()).orElseThrow(() -> new NoSuchElementException("카드 정보를 찾을 수 없습니다."));
 
+            // 배경색, 글자색 변경
             Card updateCard = Card.builder()
                     .id(card.getId())
                     .organization(card.getOrganization())
@@ -307,30 +317,12 @@ public class CardService {
 
             cardRepository.save(updateCard);
 
-            return ResponseEntity.ok().body("save complete");
-
-        } catch(NoSuchElementException e){
-            log.info("회원 정보가 없음"+ e.getMessage());
-            return new ResponseEntity<>( ErrMsgDto.builder()
-                    .message("오류가 발생했습니다.").statusCode(HttpStatus.BAD_REQUEST.value()).build(),HttpStatus.BAD_REQUEST);
-        } catch(Exception e) {
-            log.info("오류 발생");
-            return new ResponseEntity<>( ErrMsgDto.builder()
-                    .message("오류가 발생했습니다.").statusCode(HttpStatus.BAD_REQUEST.value()).build(),HttpStatus.BAD_REQUEST);
-        }
-    }
-
-    public ResponseEntity<?> changeSticker (List<StickerDto> stickerDtos, Principal principal) {
-        try {
-            Member member = memberRepository.findByEmail(principal.getName()).orElseThrow(() -> new NoSuchElementException("회원 정보를 찾을 수 없음"));
-            Card card = cardRepository.findByMemberId(member.getId()).orElseThrow(() -> new NoSuchElementException("카드 정보를 찾을 수 없음"));
+            // 스티커 저장
             List<Media> mediaList = mediaRepository.findAllByCardId(card.getId());
             if (mediaList != null)
                 mediaRepository.deleteAll(mediaList);
 
-            log.info("stic"+ stickerDtos);
-
-            List<Media> medias = stickerDtos.stream()
+            List<Media> medias = colorDto.getStickerList().stream()
                     .map(stickerDto -> Media.builder()
                             .type(stickerDto.getType())
                             .posX(stickerDto.getPosX())
@@ -343,8 +335,9 @@ public class CardService {
             mediaRepository.saveAll(medias);
 
             return ResponseEntity.ok().body("save complete");
-        } catch(NoSuchElementException e) {
-            log.info("오류 정보: "+ e.getMessage());
+
+        } catch(NoSuchElementException e){
+            log.info("회원 정보가 없음"+ e.getMessage());
             return new ResponseEntity<>( ErrMsgDto.builder()
                     .message("오류가 발생했습니다.").statusCode(HttpStatus.BAD_REQUEST.value()).build(),HttpStatus.BAD_REQUEST);
         } catch(Exception e) {

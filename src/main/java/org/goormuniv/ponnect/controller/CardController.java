@@ -61,10 +61,4 @@ public class CardController {
         return cardService.changeColor(colorDto, principal);
     }
 
-    @PreAuthorize("isAuthenticated()")
-    @PostMapping("/card/sticker")
-    public ResponseEntity<?> changeSticker (@RequestBody List<StickerDto> stickerDtos, Principal principal) {
-        System.out.println("sitkce"+ stickerDtos);
-        return cardService.changeSticker(stickerDtos, principal);
-    }
 }
