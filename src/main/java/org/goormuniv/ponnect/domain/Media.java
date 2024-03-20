@@ -33,5 +33,5 @@ public class Media extends BaseEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn (name = "card_id")
     @ToString.Exclude
-    private Card card; //속한 명함 ID
+    private Card card;
 }

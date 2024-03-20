@@ -3,6 +3,7 @@ package org.goormuniv.ponnect.controller;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import okhttp3.Response;
 import org.goormuniv.ponnect.dto.CardToCategoryDto;
 import org.goormuniv.ponnect.dto.CategoryCreateDto;
 import org.goormuniv.ponnect.service.CategoryService;
@@ -34,7 +35,7 @@ public class CategoryController {
 
 
     @PreAuthorize("isAuthenticated()")
-    @PostMapping("/card/category/friend")
+    @PostMapping("/card/category/friend") //카테고리에 등록
     public ResponseEntity<?> postCategoryToCard(Principal principal, @RequestBody CardToCategoryDto cardToCategoryDto){
         return categoryService.postCategoryToCard(principal, cardToCategoryDto);
     }
@@ -45,6 +46,12 @@ public class CategoryController {
     @GetMapping("/card/category/{categoryId}")
     public ResponseEntity<?> getAllCards(Principal principal, @PathVariable(name = "categoryId") Long categoryId, @RequestParam(required = false, defaultValue = "", value = "search") String search ) {
         return categoryService.getAllCardOfCategory(categoryId, principal, search);
+    }
+
+    @PreAuthorize("isAuthenticated()")
+    @GetMapping("/card/category/not-belong/{categoryId}")
+    public ResponseEntity<?> getNotBelongCards(Principal principal, @PathVariable(name = "categoryId") Long categoryId, @RequestParam(required = false, defaultValue = "", value = "search") String search ) {
+        return categoryService.getNotBelongCards(categoryId, principal, search);
     }
 
 

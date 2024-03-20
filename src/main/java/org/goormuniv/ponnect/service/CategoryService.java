@@ -5,10 +5,7 @@ import jakarta.persistence.criteria.*;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.goormuniv.ponnect.domain.Card;
-import org.goormuniv.ponnect.domain.CardCategory;
-import org.goormuniv.ponnect.domain.Category;
-import org.goormuniv.ponnect.domain.Member;
+import org.goormuniv.ponnect.domain.*;
 import org.goormuniv.ponnect.dto.*;
 import org.goormuniv.ponnect.repository.CardCategoryRepository;
 import org.goormuniv.ponnect.repository.CardRepository;
@@ -39,7 +36,7 @@ public class CategoryService {
     @Transactional
     public ResponseEntity<?> createCategory(Principal principal, CategoryCreateDto categoryCreateDto) {
         Map<String, Object> response = new HashMap<>();
-        if(categoryCreateDto.getCategoryName() == null){
+        if (categoryCreateDto.getCategoryName() == null) {
             return ResponseEntity.badRequest().body(ErrMsgDto.builder().message("카테고리가 없습니다.").statusCode(HttpStatus.BAD_REQUEST.value()).build());
         }
         try {
@@ -51,14 +48,15 @@ public class CategoryService {
 
             response.put("categoryId", category.getId());
 
-        } catch (Exception e){
+        } catch (Exception e) {
             log.info("회원이 없음");
-            return new ResponseEntity<>( ErrMsgDto.builder()
-                    .message("회원이 존재하지 않습니다.").statusCode(HttpStatus.BAD_REQUEST.value()).build(),HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(ErrMsgDto.builder()
+                    .message("회원이 존재하지 않습니다.").statusCode(HttpStatus.BAD_REQUEST.value()).build(), HttpStatus.BAD_REQUEST);
 
         }
         return ResponseEntity.ok().body(response);
     }
+
     //GET /api/card/category 목록 보기
     public ResponseEntity<?> getCategory(Principal principal) {
         try {
@@ -70,10 +68,10 @@ public class CategoryService {
                         .build();
             }).toList();
             return ResponseEntity.ok(categoryList);
-        } catch (Exception e){
+        } catch (Exception e) {
             log.info("회원이 없음");
-            return new ResponseEntity<>( ErrMsgDto.builder()
-                    .message("회원이 존재하지 않습니다.").statusCode(HttpStatus.BAD_REQUEST.value()).build(),HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(ErrMsgDto.builder()
+                    .message("회원이 존재하지 않습니다.").statusCode(HttpStatus.BAD_REQUEST.value()).build(), HttpStatus.BAD_REQUEST);
         }
     }
 
@@ -84,14 +82,14 @@ public class CategoryService {
             Member member = memberRepository.findByEmail(principal.getName()).orElseThrow();
             Category category = categoryRepository.findCategoryByIdAndMemberId(cardToCategoryDto.getCategoryId(), member.getId()).orElseThrow();
             List<CardIdDto> cardIdDtoList = cardToCategoryDto.getCardIdList();
-            if(cardIdDtoList.isEmpty()){
+            if (cardIdDtoList.isEmpty()) {
                 return ResponseEntity.badRequest().body(ErrMsgDto.builder().message("추가할 항목이 없습니다.").statusCode(HttpStatus.NO_CONTENT.value()).build());
             }
-            for(CardIdDto cardIdDto : cardIdDtoList){
-                if(cardRepository.findCardById(cardIdDto.getCardId()).isPresent()) {
+            for (CardIdDto cardIdDto : cardIdDtoList) {
+                if (cardRepository.findCardById(cardIdDto.getCardId()).isPresent()) {
                     CardCategory cardCategory = CardCategory.builder()
                             .category(category)
-                            .card(cardRepository.findCardById(cardIdDto.getCardId()).get())
+                            .member(cardRepository.findCardById(cardIdDto.getCardId()).get().getMember())
                             .build();
                     cardCategoryRepository.save(cardCategory);
                 }
@@ -99,9 +97,10 @@ public class CategoryService {
 
             return ResponseEntity.ok().build();
 
-        } catch (Exception e){
-            return new ResponseEntity<>( ErrMsgDto.builder()
-                    .message("추가에 실패하였습니다.").statusCode(HttpStatus.BAD_REQUEST.value()).build(),HttpStatus.BAD_REQUEST);
+        } catch (Exception e) {
+            log.info(e.getMessage());
+            return new ResponseEntity<>(ErrMsgDto.builder()
+                    .message("추가에 실패하였습니다.").statusCode(HttpStatus.BAD_REQUEST.value()).build(), HttpStatus.BAD_REQUEST);
         }
     }
 
@@ -110,77 +109,159 @@ public class CategoryService {
             Member member = memberRepository.findByEmail(principal.getName()).orElseThrow();
 
             log.info(member.getEmail());
-            Specification<CardCategory> specification = search(keyword, member.getId()); //여기서 에러가 나는것 같다.
+            Specification<CardCategory> specification = search(keyword, categoryId); //여기서 에러가 나는것 같다.
 
             List<CardDto> cardDtos = cardCategoryRepository.findAll(specification).stream()
-                    .map(cardEntity -> {
-                        Card card = cardEntity.getCard();
+                    .map(cardCategory -> {
+                        Member memberEntity = cardCategory.getMember();
                         return CardDto.builder()
-                                .userId(card.getMember().getId())
-                                .name(card.getMember().getName())
-                                .phone(card.getMember().getPhone())
-                                .email(card.getMember().getEmail())
-                                .qrUrl(card.getMember().getQrUrl())
-                                .instagram(card.getInstagram())
-                                .organization(card.getOrganization())
-                                .link(card.getLink())
-                                .content(card.getInstagram())
-                                .youtube(card.getYoutube())
-                                .facebook(card.getFacebook())
-                                .x(card.getX())
-                                .tiktok(card.getTiktok())
-                                .naver(card.getNaver())
-                                .linkedIn(card.getLinkedIn())
-                                .notefolio(card.getNotefolio())
-                                .behance(card.getBehance())
-                                .github(card.getGithub())
-                                .kakao(card.getKakao())
-                                .bgColor(card.getBgColor())
-                                .textColor(card.getTextColor())
+                                .userId(memberEntity.getId())
+                                .name(memberEntity.getName())
+                                .phone(memberEntity.getPhone())
+                                .email(memberEntity.getEmail())
+                                .qrUrl(memberEntity.getQrUrl())
+                                .instagram(memberEntity.getCard().getInstagram())
+                                .status(memberEntity.getCard().getStatus())
+                                .organization(memberEntity.getCard().getOrganization())
+                                .link(memberEntity.getCard().getLink())
+                                .content(memberEntity.getCard().getInstagram())
+                                .youtube(memberEntity.getCard().getYoutube())
+                                .facebook(memberEntity.getCard().getFacebook())
+                                .x(memberEntity.getCard().getX())
+                                .tiktok(memberEntity.getCard().getTiktok())
+                                .naver(memberEntity.getCard().getNaver())
+                                .linkedIn(memberEntity.getCard().getLinkedIn())
+                                .notefolio(memberEntity.getCard().getNotefolio())
+                                .behance(memberEntity.getCard().getBehance())
+                                .github(memberEntity.getCard().getGithub())
+                                .kakao(memberEntity.getCard().getKakao())
+                                .bgColor(memberEntity.getCard().getBgColor())
+                                .textColor(memberEntity.getCard().getTextColor())
                                 .build();
                     })
                     .toList();
 
             return ResponseEntity.ok(cardDtos);
-        }catch(Exception e){
+        } catch (Exception e) {
             log.info(e.getMessage());
-            return new ResponseEntity<>( ErrMsgDto.builder()
-                    .message("회원이 존재하지 않습니다.").statusCode(HttpStatus.BAD_REQUEST.value()).build(),HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(ErrMsgDto.builder()
+                    .message("회원이 존재하지 않습니다.").statusCode(HttpStatus.BAD_REQUEST.value()).build(), HttpStatus.BAD_REQUEST);
         }
     }
 
     private Specification<CardCategory> search(String kw, Long categoryId) {
         return (Root<CardCategory> root, CriteriaQuery<?> criteriaQuery, CriteriaBuilder criteriaBuilder) -> {
             criteriaQuery.distinct(true);
-            Predicate followIdPredicate =  criteriaBuilder.equal(root.get("category").get("id"), categoryId);
-            Join<CardCategory, Card> CardCategoryJoin = root.join("card", JoinType.INNER);
-            Join< Member, Card> cardJoin = CardCategoryJoin.join("member", JoinType.INNER);
-            Predicate cardPredicate =  criteriaBuilder.equal(cardJoin.get("id"), CardCategoryJoin.get("id"));
+            Predicate followIdPredicate = criteriaBuilder.equal(root.get("category").get("id"), categoryId);
+            Join<CardCategory, Member> CardCategoryJoin = root.join("member", JoinType.INNER);
+            Join<Member, Card> cardJoin = CardCategoryJoin.join("card", JoinType.INNER);
+            Predicate cardPredicate = criteriaBuilder.equal(cardJoin.get("id"), CardCategoryJoin.get("id"));
 
 
-            Predicate searchPredicate = criteriaBuilder.or(criteriaBuilder.like(cardJoin.get("name"), "%" + kw + "%"), // 제목
-                    criteriaBuilder.like(cardJoin.get("email"), "%" + kw + "%"),      // 내용
-                    criteriaBuilder.like(cardJoin.get("phone"), "%" + kw + "%"),
-                    criteriaBuilder.like(CardCategoryJoin.get("content"), "%" + kw + "%"),
-                    criteriaBuilder.like(CardCategoryJoin.get("organization"), "%" + kw + "%"),
-                    criteriaBuilder.like(CardCategoryJoin.get("instagram"), "%" + kw + "%"),
-                    criteriaBuilder.like(CardCategoryJoin.get("youtube"), "%" + kw + "%"),
-                    criteriaBuilder.like(CardCategoryJoin.get("facebook"), "%" + kw + "%"),
-                    criteriaBuilder.like(CardCategoryJoin.get("x"), "%" + kw + "%"),
-                    criteriaBuilder.like(CardCategoryJoin.get("tiktok"), "%" + kw + "%"),
-                    criteriaBuilder.like(CardCategoryJoin.get("naver"), "%" + kw + "%"),
-                    criteriaBuilder.like(CardCategoryJoin.get("linkedIn"), "%" + kw + "%"),
-                    criteriaBuilder.like(CardCategoryJoin.get("notefolio"), "%" + kw + "%"),
-                    criteriaBuilder.like(CardCategoryJoin.get("behance"), "%" + kw + "%"),
-                    criteriaBuilder.like(CardCategoryJoin.get("github"), "%" + kw + "%"),
-                    criteriaBuilder.like(CardCategoryJoin.get("kakao"), "%" + kw + "%")
-            );  //script
+            Predicate searchPredicate = criteriaBuilder.or(criteriaBuilder.like(CardCategoryJoin.get("name"), "%" + kw + "%"), // 제목
+                    criteriaBuilder.like(CardCategoryJoin.get("email"), "%" + kw + "%"),      // 내용
+                    criteriaBuilder.like(CardCategoryJoin.get("phone"), "%" + kw + "%"),
+                    criteriaBuilder.like(cardJoin.get("content"), "%" + kw + "%"),
+                    criteriaBuilder.like(cardJoin.get("organization"), "%" + kw + "%"),
+                    criteriaBuilder.like(cardJoin.get("instagram"), "%" + kw + "%"),
+                    criteriaBuilder.like(cardJoin.get("youtube"), "%" + kw + "%"),
+                    criteriaBuilder.like(cardJoin.get("facebook"), "%" + kw + "%"),
+                    criteriaBuilder.like(cardJoin.get("status"), "%" + kw + "%"),
+                    criteriaBuilder.like(cardJoin.get("x"), "%" + kw + "%"),
+                    criteriaBuilder.like(cardJoin.get("tiktok"), "%" + kw + "%"),
+                    criteriaBuilder.like(cardJoin.get("naver"), "%" + kw + "%"),
+                    criteriaBuilder.like(cardJoin.get("linkedIn"), "%" + kw + "%"),
+                    criteriaBuilder.like(cardJoin.get("notefolio"), "%" + kw + "%"),
+                    criteriaBuilder.like(cardJoin.get("behance"), "%" + kw + "%"),
+                    criteriaBuilder.like(cardJoin.get("github"), "%" + kw + "%"),
+                    criteriaBuilder.like(cardJoin.get("kakao"), "%" + kw + "%")
+            );
 
             return criteriaBuilder.and(followIdPredicate, cardPredicate, searchPredicate);
         };
     }
+
+    public ResponseEntity<?> getNotBelongCards(Long categoryId, Principal principal, String search) {
+        //try {
+            Member member = memberRepository.findByEmail(principal.getName()).orElseThrow();
+
+
+            Specification<Member> specification = notBelongSearch(search, categoryId, member.getId()); //여기서 에러가 나는것 같다.
+            List<CardDto> list = memberRepository.findAll(specification).stream()
+                .map(memberEntity -> {
+                    return CardDto.builder()
+                            .userId(memberEntity.getId())
+                            .name(memberEntity.getName())
+                            .phone(memberEntity.getPhone())
+                            .email(memberEntity.getEmail())
+                            .qrUrl(memberEntity.getQrUrl())
+                            .instagram(memberEntity.getCard().getInstagram())
+                            .organization(memberEntity.getCard().getOrganization())
+                            .status(memberEntity.getCard().getStatus())
+                            .link(memberEntity.getCard().getLink())
+                            .content(memberEntity.getCard().getInstagram())
+                            .youtube(memberEntity.getCard().getYoutube())
+                            .facebook(memberEntity.getCard().getFacebook())
+                            .x(memberEntity.getCard().getX())
+                            .tiktok(memberEntity.getCard().getTiktok())
+                            .naver(memberEntity.getCard().getNaver())
+                            .linkedIn(memberEntity.getCard().getLinkedIn())
+                            .notefolio(memberEntity.getCard().getNotefolio())
+                            .behance(memberEntity.getCard().getBehance())
+                            .github(memberEntity.getCard().getGithub())
+                            .kakao(memberEntity.getCard().getKakao())
+                            .bgColor(memberEntity.getCard().getBgColor())
+                            .textColor(memberEntity.getCard().getTextColor())
+                            .build();
+                })
+                .toList();
+
+        return ResponseEntity.ok(list);
+    }
+
+    private Specification<Member> notBelongSearch(String kw, Long categoryId, Long memberId) {
+        return (Root<Member> root, CriteriaQuery<?> criteriaQuery, CriteriaBuilder criteriaBuilder) -> {
+
+
+            Subquery<Long> followedSubquery = criteriaQuery.subquery(Long.class);
+            Root<Follow> followedSubRoot = followedSubquery.from(Follow.class);
+            followedSubquery.select(followedSubRoot.get("followed").get("id")); // Selecting followed memberId
+            followedSubquery.where(criteriaBuilder.equal(followedSubRoot.get("following").get("id"), memberId)); // Filtering by memberId
+
+
+            Subquery<Long> categoryMembersSubquery = criteriaQuery.subquery(Long.class);
+            Root<CardCategory> categoryMembersSubRoot = categoryMembersSubquery.from(CardCategory.class);
+            categoryMembersSubquery.select(categoryMembersSubRoot.get("member").get("id")); // Selecting memberId from CardCategory
+            categoryMembersSubquery.where(criteriaBuilder.equal(categoryMembersSubRoot.get("category").get("id"), categoryId)); // Filtering by categoryId
+
+            Predicate searchPredicate = criteriaBuilder.or(criteriaBuilder.like(root.get("name"), "%" + kw + "%"), // 제목
+                    criteriaBuilder.like(root.get("email"), "%" + kw + "%"),      // 내용
+                    criteriaBuilder.like(root.get("phone"), "%" + kw + "%"),
+                    criteriaBuilder.like(root.get("card").get("content"), "%" + kw + "%"),
+                    criteriaBuilder.like(root.get("card").get("organization"), "%" + kw + "%"),
+                    criteriaBuilder.like(root.get("card").get("instagram"), "%" + kw + "%"),
+                    criteriaBuilder.like(root.get("card").get("youtube"), "%" + kw + "%"),
+                    criteriaBuilder.like(root.get("card").get("status"), "%" + kw + "%"),
+                    criteriaBuilder.like(root.get("card").get("facebook"), "%" + kw + "%"),
+                    criteriaBuilder.like(root.get("card").get("x"), "%" + kw + "%"),
+                    criteriaBuilder.like(root.get("card").get("tiktok"), "%" + kw + "%"),
+                    criteriaBuilder.like(root.get("card").get("naver"), "%" + kw + "%"),
+                    criteriaBuilder.like(root.get("card").get("linkedIn"), "%" + kw + "%"),
+                    criteriaBuilder.like(root.get("card").get("notefolio"), "%" + kw + "%"),
+                    criteriaBuilder.like(root.get("card").get("behance"), "%" + kw + "%"),
+                    criteriaBuilder.like(root.get("card").get("github"), "%" + kw + "%"),
+                    criteriaBuilder.like(root.get("card").get("kakao"), "%" + kw + "%")
+            );
+
+
+            return criteriaBuilder.and(
+                    root.get("id").in(followedSubquery),
+                    criteriaBuilder.not(root.get("id").in(categoryMembersSubquery)
+                    ), searchPredicate
+            );
+        };
+    }
+
 }
 
-
-    //GET /api/card/category/:categoryId?search={keyword}
 

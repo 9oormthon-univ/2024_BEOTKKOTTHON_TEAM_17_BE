@@ -16,11 +16,11 @@ public class CardCategory {
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "card_id")
-    private Card card;
+    @JoinColumn(name = "member_id")
+    private Member member; //category에 해당하는 명함
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "category_id")
-    private Category category;
+    private Category category; //category Id
 
 }

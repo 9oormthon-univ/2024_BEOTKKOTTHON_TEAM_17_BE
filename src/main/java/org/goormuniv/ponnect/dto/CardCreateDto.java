@@ -13,6 +13,7 @@ public class CardCreateDto {
     private String content;
     private String instagram;
     private String youtube;
+    private String status;
     private String facebook;
     private String x;
     private String tictok;
