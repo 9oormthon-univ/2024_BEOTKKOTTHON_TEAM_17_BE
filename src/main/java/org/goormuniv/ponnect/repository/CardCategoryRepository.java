@@ -9,4 +9,6 @@ import java.util.List;
 public interface CardCategoryRepository extends JpaRepository<CardCategory, Long> {
 
     List<CardCategory> findAll(Specification<CardCategory> spec);
+
+    List<CardCategory> findByCategoryId(Long categoryId);
 }

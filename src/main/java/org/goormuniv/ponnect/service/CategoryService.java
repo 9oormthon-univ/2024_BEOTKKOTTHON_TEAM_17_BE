@@ -20,6 +20,7 @@ import java.security.Principal;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -262,6 +263,38 @@ public class CategoryService {
         };
     }
 
+    @Transactional
+    public ResponseEntity<?> renameCategoryName(Principal principal, Long categoryId, CategoryRenameDto categoryRenameDto) {
+        try {
+            Member member = memberRepository.findByEmail(principal.getName()).orElseThrow();
+            Category category = categoryRepository.findCategoryByIdAndMemberId(categoryId, member.getId()).orElseThrow();
+            category.setCategoryName(categoryRenameDto.getCategoryName());
+            return ResponseEntity.ok().build();
+        } catch (Exception e) {
+            log.info(e.getMessage());
+            return new ResponseEntity<>(ErrMsgDto.builder()
+                    .message("카테고리 이름을 수정할 수 없습니다.")
+                    .statusCode(HttpStatus.BAD_REQUEST.value()).build(),
+                    HttpStatus.BAD_REQUEST);
+        }
+    }
+
+    @Transactional
+    public ResponseEntity<?> removeCategory(Principal principal, Long categoryId) {
+        try {
+            Member member = memberRepository.findByEmail(principal.getName()).orElseThrow();
+            categoryRepository.findCategoryByIdAndMemberId(categoryId, member.getId()).orElseThrow();
+            List<CardCategory> cardCategories = cardCategoryRepository.findByCategoryId(categoryId);
+            cardCategoryRepository.deleteAll(cardCategories);
+            return ResponseEntity.ok().build();
+        } catch (Exception e) {
+            log.info(e.getMessage());
+            return new ResponseEntity<>(ErrMsgDto.builder()
+                    .message("카테고리를 삭제할 수 없습니다.")
+                    .statusCode(HttpStatus.BAD_REQUEST.value()).build(),
+                    HttpStatus.BAD_REQUEST);
+        }
+    }
 }
 
 
