@@ -263,6 +263,7 @@ public class CategoryService {
         };
     }
 
+
     @Transactional
     public ResponseEntity<?> renameCategoryName(Principal principal, Long categoryId, CategoryRenameDto categoryRenameDto) {
         try {
@@ -295,6 +296,7 @@ public class CategoryService {
                     HttpStatus.BAD_REQUEST);
         }
     }
+
 }
 
 

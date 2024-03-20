@@ -56,6 +56,7 @@ public class CategoryController {
     }
 
 
+
     @PreAuthorize("isAuthenticated()")
     @PatchMapping("/card/category/{categoryId}")
     public ResponseEntity<?> renameCategoryName(Principal principal, @PathVariable Long categoryId, @RequestBody CategoryRenameDto categoryRenameDto){
@@ -67,5 +68,6 @@ public class CategoryController {
     public ResponseEntity<?> removeCategory(Principal principal, @PathVariable Long categoryId){
         return categoryService.removeCategory(principal, categoryId);
     }
+
 
 }
