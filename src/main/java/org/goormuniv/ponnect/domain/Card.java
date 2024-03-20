@@ -21,13 +21,13 @@ public class Card extends BaseEntity {
     private Long id;
 
     @Column
-    private String organization; //조직
+    private String organization;
 
     @Column
-    private String link; //링크
+    private String link;
 
     @Column(columnDefinition = "TEXT")
-    private String content; //추가 글
+    private String content;
 
     @Column
     private String instagram;
@@ -63,11 +63,11 @@ public class Card extends BaseEntity {
 
     @Column
     @Builder.Default
-    private String bgColor = "#ffe3e7"; //배경색
+    private String bgColor = "#ffe3e7";
 
     @Column
     @Builder.Default
-    private String textColor = "#000"; //텍스트 색상
+    private String textColor = "#000";
 
     @OneToOne(mappedBy = "card", cascade = { CascadeType.PERSIST, CascadeType.REMOVE}, orphanRemoval = true)
     private Member member;

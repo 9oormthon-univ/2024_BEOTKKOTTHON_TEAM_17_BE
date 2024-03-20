@@ -43,12 +43,17 @@ public class Member extends BaseEntity {
     @OneToMany(mappedBy = "following")
     @Builder.Default
     @ToString.Exclude
-    private List<Follow> followingList = new ArrayList<Follow>(); //자신이 팔로잉 한것만 알면 된다.
+    private List<Follow> followingList = new ArrayList<Follow>();
 
     @OneToMany(mappedBy = "member", fetch = FetchType.LAZY)
     @ToString.Exclude
     @Builder.Default
-    private List<Category> categoryList = new ArrayList<Category>(); //자신이 생성한 카테고리가 형성된다.
+    private List<Category> categoryList = new ArrayList<Category>();
+
+    @OneToMany(mappedBy = "member", fetch = FetchType.LAZY)
+    @ToString.Exclude
+    @Builder.Default
+    private List<CardCategory> member = new ArrayList<>();
 
 
 
