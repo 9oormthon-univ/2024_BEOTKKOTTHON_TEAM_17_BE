@@ -69,5 +69,11 @@ public class CategoryController {
         return categoryService.removeCategory(principal, categoryId);
     }
 
+    @PreAuthorize("isAuthenticated()")
+    @DeleteMapping("/card/category/{categoryId}/remove/{cardId}")
+    public ResponseEntity<?> removeCardOfCategory(Principal principal, @PathVariable Long categoryId, @PathVariable Long cardId){
+        return categoryService.removeCardOfCategory(principal, categoryId, cardId);
+    }
+
 
 }
