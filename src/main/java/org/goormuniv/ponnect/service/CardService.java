@@ -5,15 +5,9 @@ import jakarta.persistence.criteria.*;
 import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.goormuniv.ponnect.domain.Card;
-import org.goormuniv.ponnect.domain.Follow;
-import org.goormuniv.ponnect.domain.Media;
-import org.goormuniv.ponnect.domain.Member;
+import org.goormuniv.ponnect.domain.*;
 import org.goormuniv.ponnect.dto.*;
-import org.goormuniv.ponnect.repository.CardRepository;
-import org.goormuniv.ponnect.repository.FollowRepository;
-import org.goormuniv.ponnect.repository.MediaRepository;
-import org.goormuniv.ponnect.repository.MemberRepository;
+import org.goormuniv.ponnect.repository.*;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -33,6 +27,8 @@ public class CardService {
     private final MemberRepository memberRepository;
     private final FollowRepository followRepository;
     private final MediaRepository mediaRepository;
+    private final CardCategoryRepository cardCategoryRepository;
+    private final CategoryRepository categoryRepository;
 
     @Transactional
     public ResponseEntity<?> createCard(CardCreateDto cardCreateDto, Principal principal) {
@@ -257,15 +253,22 @@ public class CardService {
         };
     }
 
-    public ResponseEntity<?> deleteCard (Long userId, Principal principal) {
+    public ResponseEntity<?> deleteCard (Long userId, Principal principal) { //삭제 메서드 수행 시, 카테고리에 존재하는 영역 모두 삭제해야함
         try {
             Member following = memberRepository.findByEmail(principal.getName()).orElseThrow();
 
             Follow follow = followRepository.findByFollowingIdAndFollowedId(following.getId(), userId);
 
+
             if (follow == null) throw new NullPointerException("해당 팔로우가 존재하지 않습니다.");
 
-            followRepository.delete(follow);
+            List<Category> category = categoryRepository.findAllByMemberId(following.getId());
+            for(Category categoryEntity : category){
+                Optional<CardCategory> cardCategory = cardCategoryRepository.findCardCategoryByCategoryIdAndMemberId(categoryEntity.getId(), userId);
+                cardCategory.ifPresent(cardCategoryRepository::delete);
+            }
+
+            followRepository.delete(follow); //팔로우 삭제하기 전에 명함함에 존재하는 해당 명함을 우선 삭제해준다.
 
             return ResponseEntity.ok().body("delete complete");
         } catch(NullPointerException e){
