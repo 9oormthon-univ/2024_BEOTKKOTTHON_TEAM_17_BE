@@ -13,5 +13,6 @@ public interface CardCategoryRepository extends JpaRepository<CardCategory, Long
 
     List<CardCategory> findByCategoryId(Long categoryId);
 
+
     Optional<CardCategory> findCardCategoryByCategoryIdAndMemberId(Long cardCategoryId, Long mebmerId);
 }

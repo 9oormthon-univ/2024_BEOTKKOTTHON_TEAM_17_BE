@@ -263,6 +263,7 @@ public class CategoryService {
         };
     }
 
+
     @Transactional
     public ResponseEntity<?> renameCategoryName(Principal principal, Long categoryId, CategoryRenameDto categoryRenameDto) {
         try {
@@ -287,6 +288,7 @@ public class CategoryService {
             List<CardCategory> cardCategories = cardCategoryRepository.findByCategoryId(categoryId);
             cardCategoryRepository.deleteAll(cardCategories);
             categoryRepository.delete(category);
+
             return ResponseEntity.ok().build();
         } catch (Exception e) {
             log.info(e.getMessage());
@@ -296,6 +298,7 @@ public class CategoryService {
                     HttpStatus.BAD_REQUEST);
         }
     }
+
 
     @Transactional
     public ResponseEntity<?> removeCardOfCategory(Principal principal, Long categoryId, Long cardId) {
@@ -315,6 +318,7 @@ public class CategoryService {
                     HttpStatus.BAD_REQUEST);
         }
     }
+
 }
 
 
