@@ -125,7 +125,7 @@ public class CategoryService {
                                 .status(memberEntity.getCard().getStatus())
                                 .organization(memberEntity.getCard().getOrganization())
                                 .link(memberEntity.getCard().getLink())
-                                .content(memberEntity.getCard().getInstagram())
+                                .content(memberEntity.getCard().getContent())
                                 .youtube(memberEntity.getCard().getYoutube())
                                 .facebook(memberEntity.getCard().getFacebook())
                                 .x(memberEntity.getCard().getX())
@@ -200,7 +200,7 @@ public class CategoryService {
                             .organization(memberEntity.getCard().getOrganization())
                             .status(memberEntity.getCard().getStatus())
                             .link(memberEntity.getCard().getLink())
-                            .content(memberEntity.getCard().getInstagram())
+                            .content(memberEntity.getCard().getContent())
                             .youtube(memberEntity.getCard().getYoutube())
                             .facebook(memberEntity.getCard().getFacebook())
                             .x(memberEntity.getCard().getX())
@@ -318,7 +318,6 @@ public class CategoryService {
                     HttpStatus.BAD_REQUEST);
         }
     }
-
 }
 
 

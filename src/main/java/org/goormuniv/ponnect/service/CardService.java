@@ -192,7 +192,7 @@ public class CardService {
                                 .instagram(followed.getCard().getInstagram())
                                 .status(followed.getCard().getStatus())
                                 .link(followed.getCard().getLink())
-                                .content(followed.getCard().getInstagram())
+                                .content(followed.getCard().getContent())
                                 .youtube(followed.getCard().getYoutube())
                                 .facebook(followed.getCard().getFacebook())
                                 .x(followed.getCard().getX())
