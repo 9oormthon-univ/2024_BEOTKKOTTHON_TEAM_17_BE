@@ -7,7 +7,9 @@ import lombok.*;
 @AllArgsConstructor
 @Builder
 public class CardCreateDto {
-    private Long userId;
+    private String name;
+    private String phone;
+    private String email;
     private String organization;
     private String link;
     private String content;
