@@ -283,14 +283,34 @@ public class CategoryService {
     public ResponseEntity<?> removeCategory(Principal principal, Long categoryId) {
         try {
             Member member = memberRepository.findByEmail(principal.getName()).orElseThrow();
-            categoryRepository.findCategoryByIdAndMemberId(categoryId, member.getId()).orElseThrow();
+           Category category =  categoryRepository.findCategoryByIdAndMemberId(categoryId, member.getId()).orElseThrow();
             List<CardCategory> cardCategories = cardCategoryRepository.findByCategoryId(categoryId);
             cardCategoryRepository.deleteAll(cardCategories);
+            categoryRepository.delete(category);
             return ResponseEntity.ok().build();
         } catch (Exception e) {
             log.info(e.getMessage());
             return new ResponseEntity<>(ErrMsgDto.builder()
                     .message("카테고리를 삭제할 수 없습니다.")
+                    .statusCode(HttpStatus.BAD_REQUEST.value()).build(),
+                    HttpStatus.BAD_REQUEST);
+        }
+    }
+
+    @Transactional
+    public ResponseEntity<?> removeCardOfCategory(Principal principal, Long categoryId, Long cardId) {
+        try {
+            Member member = memberRepository.findByEmail(principal.getName()).orElseThrow();
+            categoryRepository.findCategoryByIdAndMemberId(categoryId, member.getId()).orElseThrow();
+            Card card = cardRepository.findCardById(cardId).orElseThrow();
+            CardCategory cardCategoroy = cardCategoryRepository.findCardCategoryByCategoryIdAndMemberId(categoryId, card.getMember().getId()).orElseThrow();
+
+            cardCategoryRepository.delete(cardCategoroy);
+            return ResponseEntity.ok().build();
+        } catch (Exception e) {
+            log.info(e.getMessage());
+            return new ResponseEntity<>(ErrMsgDto.builder()
+                    .message("해당 명함을 삭제할 수 없습니다.")
                     .statusCode(HttpStatus.BAD_REQUEST.value()).build(),
                     HttpStatus.BAD_REQUEST);
         }
