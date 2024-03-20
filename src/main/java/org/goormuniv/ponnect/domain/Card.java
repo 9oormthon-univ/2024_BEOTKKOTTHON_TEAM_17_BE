@@ -44,6 +44,9 @@ public class Card extends BaseEntity {
     private String tiktok;
 
     @Column
+    private String status;
+
+    @Column
     private String naver;
 
     @Column

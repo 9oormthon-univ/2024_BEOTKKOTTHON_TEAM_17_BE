@@ -121,6 +121,7 @@ public class CategoryService {
                                 .email(memberEntity.getEmail())
                                 .qrUrl(memberEntity.getQrUrl())
                                 .instagram(memberEntity.getCard().getInstagram())
+                                .status(memberEntity.getCard().getStatus())
                                 .organization(memberEntity.getCard().getOrganization())
                                 .link(memberEntity.getCard().getLink())
                                 .content(memberEntity.getCard().getInstagram())
@@ -165,6 +166,7 @@ public class CategoryService {
                     criteriaBuilder.like(cardJoin.get("instagram"), "%" + kw + "%"),
                     criteriaBuilder.like(cardJoin.get("youtube"), "%" + kw + "%"),
                     criteriaBuilder.like(cardJoin.get("facebook"), "%" + kw + "%"),
+                    criteriaBuilder.like(cardJoin.get("status"), "%" + kw + "%"),
                     criteriaBuilder.like(cardJoin.get("x"), "%" + kw + "%"),
                     criteriaBuilder.like(cardJoin.get("tiktok"), "%" + kw + "%"),
                     criteriaBuilder.like(cardJoin.get("naver"), "%" + kw + "%"),
@@ -195,6 +197,7 @@ public class CategoryService {
                             .qrUrl(memberEntity.getQrUrl())
                             .instagram(memberEntity.getCard().getInstagram())
                             .organization(memberEntity.getCard().getOrganization())
+                            .status(memberEntity.getCard().getStatus())
                             .link(memberEntity.getCard().getLink())
                             .content(memberEntity.getCard().getInstagram())
                             .youtube(memberEntity.getCard().getYoutube())
@@ -238,6 +241,7 @@ public class CategoryService {
                     criteriaBuilder.like(root.get("card").get("organization"), "%" + kw + "%"),
                     criteriaBuilder.like(root.get("card").get("instagram"), "%" + kw + "%"),
                     criteriaBuilder.like(root.get("card").get("youtube"), "%" + kw + "%"),
+                    criteriaBuilder.like(root.get("card").get("status"), "%" + kw + "%"),
                     criteriaBuilder.like(root.get("card").get("facebook"), "%" + kw + "%"),
                     criteriaBuilder.like(root.get("card").get("x"), "%" + kw + "%"),
                     criteriaBuilder.like(root.get("card").get("tiktok"), "%" + kw + "%"),

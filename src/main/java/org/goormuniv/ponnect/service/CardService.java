@@ -46,6 +46,7 @@ public class CardService {
                     .id(card.getId())
                     .organization(cardCreateDto.getOrganization())
                     .link(cardCreateDto.getLink())
+                    .status(cardCreateDto.getStatus())
                     .content(cardCreateDto.getContent())
                     .instagram(cardCreateDto.getInstagram())
                     .youtube(cardCreateDto.getYoutube())
@@ -85,6 +86,7 @@ public class CardService {
                     .email(member.getEmail())
                     .phone(member.getPhone())
                     .qrUrl(member.getQrUrl())
+                    .status(member.getCard().getStatus())
                     .organization(member.getCard().getOrganization())
                     .link(member.getCard().getLink())
                     .instagram(member.getCard().getInstagram())
@@ -188,6 +190,7 @@ public class CardService {
                                 .cardId(followed.getCard().getId())
                                 .organization(followed.getCard().getOrganization())
                                 .instagram(followed.getCard().getInstagram())
+                                .status(followed.getCard().getStatus())
                                 .link(followed.getCard().getLink())
                                 .content(followed.getCard().getInstagram())
                                 .youtube(followed.getCard().getYoutube())
@@ -238,6 +241,7 @@ public class CardService {
                     criteriaBuilder.like(cardJoin.get("content"), "%" + kw + "%"),
                     criteriaBuilder.like(cardJoin.get("instagram"), "%" + kw + "%"),
                     criteriaBuilder.like(cardJoin.get("youtube"), "%" + kw + "%"),
+                    criteriaBuilder.like(cardJoin.get("status"), "%" + kw + "%"),
                     criteriaBuilder.like(cardJoin.get("facebook"), "%" + kw + "%"),
                     criteriaBuilder.like(cardJoin.get("x"), "%" + kw + "%"),
                     criteriaBuilder.like(cardJoin.get("tiktok"), "%" + kw + "%"),
@@ -285,6 +289,7 @@ public class CardService {
                     .instagram(card.getInstagram())
                     .youtube(card.getYoutube())
                     .facebook(card.getFacebook())
+                    .status(card.getStatus())
                     .x(card.getX())
                     .tiktok(card.getTiktok())
                     .naver(card.getNaver())
