@@ -90,7 +90,7 @@ public class CardService {
                     .organization(member.getCard().getOrganization())
                     .link(member.getCard().getLink())
                     .instagram(member.getCard().getInstagram())
-                    .content(member.getCard().getInstagram())
+                    .content(member.getCard().getContent())
                     .youtube(member.getCard().getYoutube())
                     .facebook(member.getCard().getFacebook())
                     .x(member.getCard().getX())
