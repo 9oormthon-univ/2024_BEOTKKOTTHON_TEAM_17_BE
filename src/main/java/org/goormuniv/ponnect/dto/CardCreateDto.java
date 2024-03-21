@@ -18,11 +18,11 @@ public class CardCreateDto {
     private String status;
     private String facebook;
     private String x;
-    private String tictok;
-    private String naverBlog;
+    private String tiktok;
+    private String naver;
     private String linkedIn;
     private String notefolio;
     private String behance;
     private String github;
-    private String kakaoTalk;
+    private String kakao;
 }

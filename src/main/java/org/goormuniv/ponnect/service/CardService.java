@@ -48,12 +48,12 @@ public class CardService {
                     .youtube(cardCreateDto.getYoutube())
                     .facebook(cardCreateDto.getFacebook())
                     .x(cardCreateDto.getX())
-                    .tiktok(cardCreateDto.getTictok())
-                    .naver(cardCreateDto.getNaverBlog())
+                    .tiktok(cardCreateDto.getTiktok())
+                    .naver(cardCreateDto.getNaver())
                     .linkedIn(cardCreateDto.getLinkedIn())
                     .behance(cardCreateDto.getNotefolio())
                     .github(cardCreateDto.getGithub())
-                    .kakao(cardCreateDto.getKakaoTalk())
+                    .kakao(cardCreateDto.getKakao())
                     .member(member)
                     .build();
 
