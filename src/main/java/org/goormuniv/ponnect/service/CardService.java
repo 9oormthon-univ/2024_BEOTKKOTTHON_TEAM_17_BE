@@ -54,6 +54,8 @@ public class CardService {
                     .behance(cardCreateDto.getNotefolio())
                     .github(cardCreateDto.getGithub())
                     .kakao(cardCreateDto.getKakao())
+                    .bgColor(card.getBgColor())
+                    .textColor(card.getTextColor())
                     .member(member)
                     .build();
 
