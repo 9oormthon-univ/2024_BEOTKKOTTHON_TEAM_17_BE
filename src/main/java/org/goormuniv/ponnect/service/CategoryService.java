@@ -142,7 +142,7 @@ public class CategoryService {
                                                 .type(media.getType())
                                                 .posX(media.getPosX())
                                                 .posY(media.getPosY())
-                                                .zindex(media.getZIndex())
+                                                .zIndex(media.getZIndex())
                                                 .build())
                                         .collect(Collectors.toList()))
                                 .build();
@@ -225,7 +225,7 @@ public class CategoryService {
                                             .type(media.getType())
                                             .posX(media.getPosX())
                                             .posY(media.getPosY())
-                                            .zindex(media.getZIndex())
+                                            .zIndex(media.getZIndex())
                                             .build())
                                     .collect(Collectors.toList()))
                             .build();

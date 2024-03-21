@@ -99,7 +99,7 @@ public class CardService {
                                     .type(media.getType())
                                     .posX(media.getPosX())
                                     .posY(media.getPosY())
-                                    .zindex(media.getZIndex())
+                                    .zIndex(media.getZIndex())
                                     .build())
                             .collect(Collectors.toList()))
                     .build();
@@ -147,7 +147,7 @@ public class CardService {
                                     .type(media.getType())
                                     .posX(media.getPosX())
                                     .posY(media.getPosY())
-                                    .zindex(media.getZIndex())
+                                    .zIndex(media.getZIndex())
                                     .build())
                             .collect(Collectors.toList()))
                     .build();
@@ -249,7 +249,7 @@ public class CardService {
                                                 .type(media.getType())
                                                 .posX(media.getPosX())
                                                 .posY(media.getPosY())
-                                                .zindex(media.getZIndex())
+                                                .zIndex(media.getZIndex())
                                                 .build())
                                         .collect(Collectors.toList()))
                                 .build();
@@ -361,7 +361,7 @@ public class CardService {
                             .type(stickerDto.getType())
                             .posX(stickerDto.getPosX())
                             .posY(stickerDto.getPosY())
-                            .zIndex(stickerDto.getZindex())
+                            .zIndex(stickerDto.getZIndex())
                             .card(card)
                             .build())
                     .collect(Collectors.toList());

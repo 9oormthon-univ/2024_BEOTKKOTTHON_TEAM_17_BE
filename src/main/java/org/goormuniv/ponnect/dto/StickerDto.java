@@ -12,5 +12,5 @@ public class StickerDto {
     private String type;
     private Double posX;
     private Double posY;
-    private Integer zindex;
+    private Integer zIndex;
 }
