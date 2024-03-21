@@ -51,7 +51,7 @@ public class CardService {
                     .tiktok(cardCreateDto.getTiktok())
                     .naver(cardCreateDto.getNaver())
                     .linkedIn(cardCreateDto.getLinkedIn())
-                    .behance(cardCreateDto.getNotefolio())
+                    .behance(cardCreateDto.getBehance())
                     .github(cardCreateDto.getGithub())
                     .kakao(cardCreateDto.getKakao())
                     .bgColor(card.getBgColor())
