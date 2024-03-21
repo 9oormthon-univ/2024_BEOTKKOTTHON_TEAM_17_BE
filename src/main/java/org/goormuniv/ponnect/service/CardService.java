@@ -68,8 +68,40 @@ public class CardService {
 
             memberRepository.save(member);
 
-            response.put("cardId", card.getId());
-
+            CardDto cardDto = CardDto.builder()
+                    .cardId(member.getCard().getId())
+                    .userId(member.getId())
+                    .name(member.getName())
+                    .email(member.getEmail())
+                    .phone(member.getPhone())
+                    .qrUrl(member.getQrUrl())
+                    .status(member.getCard().getStatus())
+                    .organization(member.getCard().getOrganization())
+                    .link(member.getCard().getLink())
+                    .instagram(member.getCard().getInstagram())
+                    .content(member.getCard().getContent())
+                    .youtube(member.getCard().getYoutube())
+                    .facebook(member.getCard().getFacebook())
+                    .x(member.getCard().getX())
+                    .tiktok(member.getCard().getTiktok())
+                    .naver(member.getCard().getNaver())
+                    .linkedIn(member.getCard().getLinkedIn())
+                    .notefolio(member.getCard().getNotefolio())
+                    .behance(member.getCard().getBehance())
+                    .github(member.getCard().getGithub())
+                    .kakao(member.getCard().getKakao())
+                    .bgColor(member.getCard().getBgColor())
+                    .textColor(member.getCard().getTextColor())
+                    .stickerDtoList(mediaRepository.findAllByCardId(member.getCard().getId()).stream()
+                            .map(media -> StickerDto.builder()
+                                    .type(media.getType())
+                                    .posX(media.getPosX())
+                                    .posY(media.getPosY())
+                                    .zindex(media.getZIndex())
+                                    .build())
+                            .collect(Collectors.toList()))
+                    .build();
+        response.put("userInfo", cardDto);
         } catch (Exception e){
             log.error(e.getMessage());
             log.info("회원이 없음");

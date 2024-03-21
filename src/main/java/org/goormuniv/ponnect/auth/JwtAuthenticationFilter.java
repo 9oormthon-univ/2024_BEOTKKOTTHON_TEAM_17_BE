@@ -7,6 +7,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.goormuniv.ponnect.service.RedisService;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -24,6 +25,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private final JwtProvider jwtProvider;
     private final PrincipalServiceImpl principalDetailsServiceImp;
+    private final RedisService redisService;
 
     @Override
     protected void doFilterInternal(
@@ -41,7 +43,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         final Optional<String> accessToken = jwtProvider.extractAccessToken(request);
 
         if (accessToken.isPresent() && SecurityContextHolder.getContext().getAuthentication() == null
-                && jwtProvider.validateToken(accessToken.get()) ) {
+                && jwtProvider.validateToken(accessToken.get()) && !redisService.hasKey(accessToken.get())) {
             String email = jwtProvider.extractUserEmail(accessToken.get());
             try {
                 UserDetails userDetails = principalDetailsServiceImp.loadUserByUsername(email);

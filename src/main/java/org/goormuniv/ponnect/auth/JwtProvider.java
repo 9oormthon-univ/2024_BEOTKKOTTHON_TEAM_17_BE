@@ -4,11 +4,15 @@ import io.jsonwebtoken.*;
 import jakarta.annotation.PostConstruct;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.goormuniv.ponnect.service.RedisService;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.web.authentication.logout.LogoutHandler;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
@@ -19,8 +23,13 @@ import java.util.Optional;
 
 
 @Component
+@RequiredArgsConstructor
 @Slf4j
-public class JwtProvider {
+public class JwtProvider implements LogoutHandler {
+
+    private final RedisService redisService;
+
+
     @Value("${jwt.secret}")
     private String secret_key;
 
@@ -54,7 +63,6 @@ public class JwtProvider {
         long now = new Date().getTime();
         return ((expirationDate.getTime() - now) % 1000) + 1;
     }
-
 
 
     public String generateToken(String username) {
@@ -94,5 +102,20 @@ public class JwtProvider {
             log.info("JWT 토큰이 쪼매 이상합니다.");
         }
         return false;
+    }
+
+    @Override
+    public void logout(HttpServletRequest request, HttpServletResponse response, Authentication authentication) {
+        // 현재 인증된 사용자의 JWT 토큰 가져오기
+        String token = null;
+        try {
+            token = extractAccessToken(request).orElseThrow();
+        } catch (IOException | ServletException e) {
+            throw new RuntimeException(e);
+        }
+        String userEmail = extractUserEmail(token);
+        Long expiration = getExpireTime(token);
+        redisService.setDataWithExpiration(token, "BLACKLIST_ACCESSTOKEN_" + userEmail, expiration);
+        // 토큰 블랙리스트에 추가
     }
 }

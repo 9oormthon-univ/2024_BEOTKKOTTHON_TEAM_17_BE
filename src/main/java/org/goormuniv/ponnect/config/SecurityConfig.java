@@ -1,5 +1,6 @@
 package org.goormuniv.ponnect.config;
 
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.goormuniv.ponnect.auth.*;
 import org.springframework.boot.autoconfigure.security.servlet.PathRequest;
@@ -49,6 +50,8 @@ public class SecurityConfig {
 
     private final LoginFailureHandler loginFailureHandler;
 
+    private final JwtProvider jwtProvider;
+
 
     @Bean
     public WebSecurityCustomizer webSecurityCustomizer() {
@@ -72,6 +75,9 @@ public class SecurityConfig {
                                 .requestMatchers(CorsUtils::isPreFlightRequest).permitAll()
                                 .anyRequest().permitAll()
                 )
+                .logout(httpSecurityLogoutConfigurer -> httpSecurityLogoutConfigurer.logoutUrl("/api/auth/sign-out").addLogoutHandler(jwtProvider)
+                        .clearAuthentication(true)
+                        .logoutSuccessHandler((req, res, auth) -> res.setStatus(HttpServletResponse.SC_OK)))
                 .sessionManagement(
                         session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 )
