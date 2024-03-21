@@ -108,7 +108,6 @@ public class CategoryService {
         try {
             Member member = memberRepository.findByEmail(principal.getName()).orElseThrow();
 
-            log.info(member.getEmail());
             Specification<CardCategory> specification = search(keyword, categoryId); //여기서 에러가 나는것 같다.
 
             List<CardDto> cardDtos = cardCategoryRepository.findAll(specification).stream()
@@ -120,6 +119,7 @@ public class CategoryService {
                                 .phone(memberEntity.getPhone())
                                 .email(memberEntity.getEmail())
                                 .qrUrl(memberEntity.getQrUrl())
+                                .cardId(memberEntity.getCard().getId())
                                 .instagram(memberEntity.getCard().getInstagram())
                                 .status(memberEntity.getCard().getStatus())
                                 .organization(memberEntity.getCard().getOrganization())
@@ -142,7 +142,7 @@ public class CategoryService {
                                                 .type(media.getType())
                                                 .posX(media.getPosX())
                                                 .posY(media.getPosY())
-                                                .zIndex(media.getZIndex())
+                                                .zindex(media.getZIndex())
                                                 .build())
                                         .collect(Collectors.toList()))
                                 .build();
@@ -203,6 +203,7 @@ public class CategoryService {
                             .phone(memberEntity.getPhone())
                             .email(memberEntity.getEmail())
                             .qrUrl(memberEntity.getQrUrl())
+                            .cardId(memberEntity.getCard().getId())
                             .instagram(memberEntity.getCard().getInstagram())
                             .organization(memberEntity.getCard().getOrganization())
                             .status(memberEntity.getCard().getStatus())
@@ -225,7 +226,7 @@ public class CategoryService {
                                             .type(media.getType())
                                             .posX(media.getPosX())
                                             .posY(media.getPosY())
-                                            .zIndex(media.getZIndex())
+                                            .zindex(media.getZIndex())
                                             .build())
                                     .collect(Collectors.toList()))
                             .build();

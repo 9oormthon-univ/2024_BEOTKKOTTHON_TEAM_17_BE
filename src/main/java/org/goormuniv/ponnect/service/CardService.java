@@ -52,6 +52,7 @@ public class CardService {
                     .naver(cardCreateDto.getNaver())
                     .linkedIn(cardCreateDto.getLinkedIn())
                     .behance(cardCreateDto.getBehance())
+                    .notefolio(cardCreateDto.getNotefolio())
                     .github(cardCreateDto.getGithub())
                     .kakao(cardCreateDto.getKakao())
                     .bgColor(card.getBgColor())
@@ -99,7 +100,7 @@ public class CardService {
                                     .type(media.getType())
                                     .posX(media.getPosX())
                                     .posY(media.getPosY())
-                                    .zIndex(media.getZIndex())
+                                    .zindex(media.getZIndex())
                                     .build())
                             .collect(Collectors.toList()))
                     .build();
@@ -147,7 +148,7 @@ public class CardService {
                                     .type(media.getType())
                                     .posX(media.getPosX())
                                     .posY(media.getPosY())
-                                    .zIndex(media.getZIndex())
+                                    .zindex(media.getZIndex())
                                     .build())
                             .collect(Collectors.toList()))
                     .build();
@@ -210,11 +211,9 @@ public class CardService {
     }
 
     public ResponseEntity<?> getAllCard (Principal principal, String keyword) {
-        log.info("search : " + keyword);
         try {
             Member member = memberRepository.findByEmail(principal.getName()).orElseThrow();
 
-            log.info(member.getEmail());
             Specification<Follow> specification = search(keyword, member.getId()); //여기서 에러가 나는것 같다.
 
             List<CardDto> cardDtos = followRepository.findAll(specification).stream()
@@ -249,7 +248,7 @@ public class CardService {
                                                 .type(media.getType())
                                                 .posX(media.getPosX())
                                                 .posY(media.getPosY())
-                                                .zIndex(media.getZIndex())
+                                                .zindex(media.getZIndex())
                                                 .build())
                                         .collect(Collectors.toList()))
                                 .build();
@@ -336,6 +335,7 @@ public class CardService {
                     .instagram(card.getInstagram())
                     .youtube(card.getYoutube())
                     .facebook(card.getFacebook())
+                    .kakao(card.getKakao())
                     .status(card.getStatus())
                     .x(card.getX())
                     .tiktok(card.getTiktok())
@@ -355,13 +355,13 @@ public class CardService {
             List<Media> mediaList = mediaRepository.findAllByCardId(card.getId());
             if (mediaList != null)
                 mediaRepository.deleteAll(mediaList);
-
+            log.info(colorDto.toString());
             List<Media> medias = colorDto.getStickerList().stream()
                     .map(stickerDto -> Media.builder()
                             .type(stickerDto.getType())
                             .posX(stickerDto.getPosX())
                             .posY(stickerDto.getPosY())
-                            .zIndex(stickerDto.getZIndex())
+                            .zIndex(stickerDto.getZindex())
                             .card(card)
                             .build())
                     .collect(Collectors.toList());
