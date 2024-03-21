@@ -7,10 +7,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.goormuniv.ponnect.domain.*;
 import org.goormuniv.ponnect.dto.*;
-import org.goormuniv.ponnect.repository.CardCategoryRepository;
-import org.goormuniv.ponnect.repository.CardRepository;
-import org.goormuniv.ponnect.repository.CategoryRepository;
-import org.goormuniv.ponnect.repository.MemberRepository;
+import org.goormuniv.ponnect.repository.*;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -21,6 +18,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -31,6 +29,7 @@ public class CategoryService {
     private final CategoryRepository categoryRepository;
     private final CardCategoryRepository cardCategoryRepository;
     private final MemberRepository memberRepository;
+    private final MediaRepository mediaRepository;
 
 
     //카테고리 생성
@@ -138,6 +137,14 @@ public class CategoryService {
                                 .kakao(memberEntity.getCard().getKakao())
                                 .bgColor(memberEntity.getCard().getBgColor())
                                 .textColor(memberEntity.getCard().getTextColor())
+                                .stickerDtoList(mediaRepository.findAllByCardId(memberEntity.getCard().getId()).stream()
+                                        .map(media -> StickerDto.builder()
+                                                .type(media.getType())
+                                                .posX(media.getPosX())
+                                                .posY(media.getPosY())
+                                                .zindex(media.getZIndex())
+                                                .build())
+                                        .collect(Collectors.toList()))
                                 .build();
                     })
                     .toList();
@@ -213,6 +220,14 @@ public class CategoryService {
                             .kakao(memberEntity.getCard().getKakao())
                             .bgColor(memberEntity.getCard().getBgColor())
                             .textColor(memberEntity.getCard().getTextColor())
+                            .stickerDtoList(mediaRepository.findAllByCardId(memberEntity.getCard().getId()).stream()
+                                    .map(media -> StickerDto.builder()
+                                            .type(media.getType())
+                                            .posX(media.getPosX())
+                                            .posY(media.getPosY())
+                                            .zindex(media.getZIndex())
+                                            .build())
+                                    .collect(Collectors.toList()))
                             .build();
                 })
                 .toList();
