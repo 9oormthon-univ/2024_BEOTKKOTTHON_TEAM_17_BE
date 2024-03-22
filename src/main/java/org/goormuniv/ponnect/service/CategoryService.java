@@ -7,6 +7,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.goormuniv.ponnect.domain.*;
 import org.goormuniv.ponnect.dto.*;
+import org.goormuniv.ponnect.exception.auth.NoPermissionException;
 import org.goormuniv.ponnect.exception.auth.NotFoundMemberException;
 import org.goormuniv.ponnect.exception.card.NoExistCardException;
 import org.goormuniv.ponnect.exception.card.NotContentException;
@@ -93,8 +94,8 @@ public class CategoryService {
     }
 
     public ResponseEntity<?> getAllCardOfCategory(Long categoryId, Principal principal, String keyword) {
-            memberRepository.findByEmail(principal.getName()).orElseThrow(NotFoundMemberException::new);
-
+            Member member = memberRepository.findByEmail(principal.getName()).orElseThrow(NotFoundMemberException::new);
+            categoryRepository.findCategoryByIdAndMemberId(categoryId, member.getId()).orElseThrow(NoPermissionException::new);
             Specification<CardCategory> specification = search(keyword, categoryId);
             List<CardDto> cardDtos = cardCategoryRepository.findAll(specification).stream()
                     .map(cardCategory -> {
