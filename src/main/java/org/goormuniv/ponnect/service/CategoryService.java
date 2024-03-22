@@ -146,7 +146,7 @@ public class CategoryService {
                 Predicate followIdPredicate = criteriaBuilder.equal(root.get("category").get("id"), categoryId);
                 Join<CardCategory, Member> CardCategoryJoin = root.join("member", JoinType.INNER);
                 Join<Member, Card> cardJoin = CardCategoryJoin.join("card", JoinType.INNER);
-                Predicate cardPredicate = criteriaBuilder.equal(cardJoin.get("id"), CardCategoryJoin.get("id"));
+//                Predicate cardPredicate = criteriaBuilder.equal(cardJoin.get("id"), CardCategoryJoin.get("id"));
 
 
                 Predicate searchPredicate = criteriaBuilder.or(criteriaBuilder.like(CardCategoryJoin.get("name"), "%" + kw + "%"), // 제목
@@ -168,7 +168,7 @@ public class CategoryService {
                         criteriaBuilder.like(cardJoin.get("kakao"), "%" + kw + "%")
                 );
 
-                return criteriaBuilder.and(followIdPredicate, cardPredicate, searchPredicate);
+                return criteriaBuilder.and(followIdPredicate,  searchPredicate);
             };
         }
 

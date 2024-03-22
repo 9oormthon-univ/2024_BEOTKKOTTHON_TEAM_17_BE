@@ -175,6 +175,7 @@ public class CardService {
 
             List<CardDto> cardDtos = followRepository.findAll(specification).stream()
                     .map(follow -> {
+                        log.info(follow.toString());
                         Member followed = follow.getFollowed();
                         return CardDto.builder()
                                 .userId(followed.getId())
@@ -221,7 +222,7 @@ public class CardService {
             Predicate followIdPredicate =  criteriaBuilder.equal(root.get("following").get("id"), memberId);
             Join<Follow, Member> followedJoin = root.join("followed", JoinType.INNER);
             Join<Member, Card> cardJoin = followedJoin.join("card", JoinType.INNER);
-            Predicate cardPredicate =  criteriaBuilder.equal(cardJoin.get("id"), followedJoin.get("id"));
+//            Predicate cardPredicate =  criteriaBuilder.equal(cardJoin.get("id"), followedJoin.get("id"));
 
 
             Predicate searchPredicate = criteriaBuilder.or(criteriaBuilder.like(followedJoin.get("name"), "%" + kw + "%"), // 제목
@@ -243,7 +244,7 @@ public class CardService {
                     criteriaBuilder.like(cardJoin.get("kakao"), "%" + kw + "%")
             );  //script
 
-            return criteriaBuilder.and(followIdPredicate, cardPredicate, searchPredicate);
+            return criteriaBuilder.and(followIdPredicate, searchPredicate);
         };
     }
 
