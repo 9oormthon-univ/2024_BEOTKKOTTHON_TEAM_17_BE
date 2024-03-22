@@ -36,15 +36,7 @@ public class MemberController {
                                        HttpServletRequest httpServletRequest,
                                        HttpServletResponse httpServletResponse
     ) {
-        try{
             return memberService.register(principal, registerDto, httpServletRequest, httpServletResponse);
-        }
-        catch (Exception e){
-            log.info(e.getMessage());
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ErrMsgDto.builder()
-                    .message("가입이 정상적으로 처리되지 않았습니다.")
-                    .statusCode(HttpStatus.BAD_REQUEST.value()).build());
-        }
     }
 
     @Operation(summary="JWT 유효성 확인 및 기본 유저 정보 반환", description = "JWT 유효성 확인 및 기본 유저 정보 반환")
