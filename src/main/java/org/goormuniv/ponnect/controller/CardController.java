@@ -27,6 +27,7 @@ public class CardController {
     private final CardService cardService;
 
     @Operation(summary="명함 제작 및 수정", description = "명함 제작 및 명함 수정 요청")
+
     @PreAuthorize("isAuthenticated()")
     @PatchMapping("/card")
     public ResponseEntity<?> createMyCard(@RequestBody CardCreateDto cardCreateDto, Principal principal) {
