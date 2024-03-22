@@ -42,11 +42,7 @@ public class JwtProvider implements LogoutHandler {
 
     @PostConstruct
     protected void init() {
-        log.info("secret_key Base64 인코딩시작");
-        log.info("Original Secret_Key : " + secret_key);
         this.secret_key = Base64.getEncoder().encodeToString(secret_key.getBytes(StandardCharsets.UTF_8));
-        log.info("Encoded Base64 Secret_Key : " + secret_key);
-        log.info("secretKey 초기화 완료");
     }
 
 
