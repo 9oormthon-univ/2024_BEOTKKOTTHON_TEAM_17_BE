@@ -3,6 +3,7 @@ package org.goormuniv.ponnect.dto;
 
 import lombok.*;
 
+@Deprecated
 @AllArgsConstructor
 @NoArgsConstructor
 @Getter

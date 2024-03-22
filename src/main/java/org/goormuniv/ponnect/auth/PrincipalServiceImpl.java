@@ -18,18 +18,10 @@ public class PrincipalServiceImpl implements UserDetailsService {
     private final MemberRepository memberRepository;
 
 
-
     @Override
-    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+    public UserDetails loadUserByUsername(String username) {
         System.out.println(username);
-        Member member = Member.builder().build();
-        try {
-            member = memberRepository.findByEmail(username).orElseThrow();
-
-        } catch (Exception exception) {
-            log.info("사용자를 찾을 수 없음");
-            throw new UsernameNotFoundException("사용자를 찾을 수 없습니다.");
-        }
+        Member member = memberRepository.findByEmail(username).orElseThrow(() -> new UsernameNotFoundException("사용자를 찾을 수 없습니다."));
         return PrincipalDetails.builder()
                 .id(member.getId())
                 .name(member.getName())

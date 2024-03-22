@@ -1,19 +1,21 @@
 package org.goormuniv.ponnect.service;
 
-import com.amazonaws.services.kms.model.NotFoundException;
 import jakarta.persistence.criteria.*;
 import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.goormuniv.ponnect.domain.*;
 import org.goormuniv.ponnect.dto.*;
+import org.goormuniv.ponnect.exception.auth.NotFoundMemberException;
+import org.goormuniv.ponnect.exception.card.NoExistCardException;
+import org.goormuniv.ponnect.exception.follow.AlreadyFollowException;
+import org.goormuniv.ponnect.exception.follow.NoExistFollowMemberException;
+import org.goormuniv.ponnect.exception.follow.SelfFollowException;
 import org.goormuniv.ponnect.repository.*;
 import org.springframework.data.jpa.domain.Specification;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
-import java.awt.*;
 import java.security.Principal;
 import java.util.*;
 import java.util.List;
@@ -35,8 +37,7 @@ public class CardService {
 
         Map<String, Object> response = new HashMap<>();
 
-        try {
-            Member member = memberRepository.findByEmail(principal.getName()).orElseThrow();
+            Member member = memberRepository.findByEmail(principal.getName()).orElseThrow(NotFoundMemberException::new);
             Card card = member.getCard();
             card = Card.builder()
                     .id(card.getId())
@@ -105,20 +106,12 @@ public class CardService {
                             .collect(Collectors.toList()))
                     .build();
         response.put("userInfo", cardDto);
-        } catch (Exception e){
-            log.error(e.getMessage());
-            log.info("회원이 없음");
-            return new ResponseEntity<>( ErrMsgDto.builder()
-                    .message("회원이 존재하지 않습니다.").statusCode(HttpStatus.BAD_REQUEST.value()).build(),HttpStatus.BAD_REQUEST);
-
-        }
         return ResponseEntity.ok().body(response);
     }
 
     public ResponseEntity<?> getMyCard(Principal principal) {
         CardDto cardDto;
-        try {
-            Member member = memberRepository.findByEmail(principal.getName()).orElseThrow();
+            Member member = memberRepository.findByEmail(principal.getName()).orElseThrow(NotFoundMemberException::new);
             cardDto = CardDto.builder()
                     .cardId(member.getCard().getId())
                     .userId(member.getId())
@@ -152,30 +145,16 @@ public class CardService {
                                     .build())
                             .collect(Collectors.toList()))
                     .build();
-
-        }catch(Exception e){
-            log.info("회원이 없음");
-            return new ResponseEntity<>( ErrMsgDto.builder()
-                    .message("회원이 존재하지 않습니다.").statusCode(HttpStatus.BAD_REQUEST.value()).build(),HttpStatus.BAD_REQUEST);
-        }
         return ResponseEntity.ok(cardDto);
     }
 
     @Transactional
     public  ResponseEntity<?> saveCard(Long userId, Principal principal) {
         Map<String, Object> response = new HashMap<>();
-        try {
-            Member following = memberRepository.findByEmail(principal.getName()).orElseThrow(() -> new NotFoundException("로그인한 회원을 찾을 수 없습니다."));
-            Member followed = memberRepository.findById(userId).orElseThrow(() -> new NotFoundException("해당 회원을 찾을 수 없습니다."));
-            if(following.getId().equals(followed.getId())){ //자기자신을 팔로우 한다고 한다면 400 반환
-                return ResponseEntity.badRequest().body(ErrMsgDto.builder()
-                        .message("자신의 명함을 저장할 수 업습니다.")
-                        .statusCode(HttpStatus.BAD_REQUEST.value())
-                        .build());
-            }
-
-            if (followRepository.existsByFollowingIdAndFollowedId(following.getId(), followed.getId()))
-                throw new NullPointerException("follow가 이미 존재합니다.");
+            Member following = memberRepository.findByEmail(principal.getName()).orElseThrow(NotFoundMemberException::new);
+            Member followed = memberRepository.findById(userId).orElseThrow(NotFoundMemberException::new);
+            if(following.getId().equals(followed.getId())) throw new SelfFollowException();
+            if (followRepository.existsByFollowingIdAndFollowedId(following.getId(), followed.getId())) throw new AlreadyFollowException();
 
 
             Follow follow = Follow.builder()
@@ -187,32 +166,10 @@ public class CardService {
 
             response.put("followId", follow.getId());
             return ResponseEntity.ok(response);
-        } catch (NullPointerException e) {
-            log.info("follow가 이미 존재합니다.", e);
-            return ResponseEntity.badRequest().body(ErrMsgDto.builder()
-                    .message("오류가 발생했습니다.")
-                    .statusCode(HttpStatus.BAD_REQUEST.value())
-                    .build());
-        }
-        catch (NotFoundException e) {
-            log.info("회원을 찾을 수 없음", e);
-            return ResponseEntity.badRequest().body(ErrMsgDto.builder()
-                    .message("오류가 발생했습니다.")
-                    .statusCode(HttpStatus.BAD_REQUEST.value())
-                    .build());
-        } catch(Exception e){
-            log.error("알 수 없는 오류 발생", e);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(ErrMsgDto.builder()
-                            .message("서버 오류가 발생했습니다.")
-                            .statusCode(HttpStatus.INTERNAL_SERVER_ERROR.value())
-                            .build());
-        }
     }
 
     public ResponseEntity<?> getAllCard (Principal principal, String keyword) {
-        try {
-            Member member = memberRepository.findByEmail(principal.getName()).orElseThrow();
+            Member member = memberRepository.findByEmail(principal.getName()).orElseThrow(NotFoundMemberException::new);
 
             Specification<Follow> specification = search(keyword, member.getId()); //여기서 에러가 나는것 같다.
 
@@ -256,11 +213,6 @@ public class CardService {
                     .toList();
 
             return ResponseEntity.ok(cardDtos);
-        }catch(Exception e){
-            log.info("회원이 없음");
-            return new ResponseEntity<>( ErrMsgDto.builder()
-                    .message("회원이 존재하지 않습니다.").statusCode(HttpStatus.BAD_REQUEST.value()).build(),HttpStatus.BAD_REQUEST);
-        }
     }
 
     private Specification<Follow> search(String kw, Long memberId) {
@@ -296,13 +248,12 @@ public class CardService {
     }
 
     public ResponseEntity<?> deleteCard (Long userId, Principal principal) { //삭제 메서드 수행 시, 카테고리에 존재하는 영역 모두 삭제해야함
-        try {
-            Member following = memberRepository.findByEmail(principal.getName()).orElseThrow();
+            Member following = memberRepository.findByEmail(principal.getName()).orElseThrow(NotFoundMemberException::new);
 
             Follow follow = followRepository.findByFollowingIdAndFollowedId(following.getId(), userId);
 
 
-            if (follow == null) throw new NullPointerException("해당 팔로우가 존재하지 않습니다.");
+            if (follow == null) throw new NoExistFollowMemberException();
 
             List<Category> category = categoryRepository.findAllByMemberId(following.getId());
             for(Category categoryEntity : category){
@@ -313,18 +264,12 @@ public class CardService {
             followRepository.delete(follow); //팔로우 삭제하기 전에 명함함에 존재하는 해당 명함을 우선 삭제해준다.
 
             return ResponseEntity.ok().body("delete complete");
-        } catch(NullPointerException e){
-            log.info("해당 팔로우가 존재하지 않음", e);
-            return new ResponseEntity<>( ErrMsgDto.builder()
-                    .message("오류가 발생했습니다.").statusCode(HttpStatus.BAD_REQUEST.value()).build(),HttpStatus.BAD_REQUEST);
-        }
     }
 
     public ResponseEntity<?> changeColor (ColorDto colorDto, Principal principal) {
-        try {
-            Member member = memberRepository.findByEmail(principal.getName()).orElseThrow(() -> new NoSuchElementException("회원 정보를 찾을 수 없습니다."));
+            Member member = memberRepository.findByEmail(principal.getName()).orElseThrow(NotFoundMemberException::new);
 
-            Card card = cardRepository.findByMemberId(member.getId()).orElseThrow(() -> new NoSuchElementException("카드 정보를 찾을 수 없습니다."));
+            Card card = cardRepository.findByMemberId(member.getId()).orElseThrow(NoExistCardException::new);
 
             // 배경색, 글자색 변경
             Card updateCard = Card.builder()
@@ -370,15 +315,6 @@ public class CardService {
 
             return ResponseEntity.ok().body("save complete");
 
-        } catch(NoSuchElementException e){
-            log.info("회원 정보가 없음"+ e.getMessage());
-            return new ResponseEntity<>( ErrMsgDto.builder()
-                    .message("오류가 발생했습니다.").statusCode(HttpStatus.BAD_REQUEST.value()).build(),HttpStatus.BAD_REQUEST);
-        } catch(Exception e) {
-            log.info("오류 발생");
-            return new ResponseEntity<>( ErrMsgDto.builder()
-                    .message("오류가 발생했습니다.").statusCode(HttpStatus.BAD_REQUEST.value()).build(),HttpStatus.BAD_REQUEST);
-        }
     }
 
 }

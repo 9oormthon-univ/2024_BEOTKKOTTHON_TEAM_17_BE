@@ -4,6 +4,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import lombok.RequiredArgsConstructor;
+import org.goormuniv.ponnect.dto.LoginDto;
 import org.springframework.security.authentication.AuthenticationServiceException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -17,9 +19,8 @@ import java.nio.charset.StandardCharsets;
 import java.util.Map;
 
 public class JSONLoginFilter extends AbstractAuthenticationProcessingFilter {
+
     private static final String CONTENT_TYPE = "application/json";
-    private static final String USERNAME_KEY = "principal";
-    private static final String PASSWORD_KEY = "credential";
     private static final AntPathRequestMatcher DEFAULT_LOGIN_PATH_REQUEST_MATCHER =
             new AntPathRequestMatcher("/api/auth/sign-in", "POST"); //
 
@@ -36,13 +37,12 @@ public class JSONLoginFilter extends AbstractAuthenticationProcessingFilter {
 
 
         String messageBody = StreamUtils.copyToString(request.getInputStream(), StandardCharsets.UTF_8);
-        System.out.println(messageBody.toString());
         ObjectMapper objectMapper = new ObjectMapper();
 
-        Map<String, String> usernamePasswordMap = objectMapper.readValue(messageBody, Map.class);
+        LoginDto usernamePasswordMap = objectMapper.readValue(messageBody, LoginDto.class);
 
-        String email = usernamePasswordMap.get(USERNAME_KEY);
-        String password = usernamePasswordMap.get(PASSWORD_KEY);
+        String email = usernamePasswordMap.getPrincipal();
+        String password = usernamePasswordMap.getCredential();
         System.out.println(email + password);
 
 

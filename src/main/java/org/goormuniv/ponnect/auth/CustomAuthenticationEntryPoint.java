@@ -5,6 +5,8 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
 
+import org.goormuniv.ponnect.exception.ErrCode;
+import org.goormuniv.ponnect.exception.ErrResponse;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.stereotype.Component;
@@ -23,12 +25,13 @@ public class CustomAuthenticationEntryPoint implements AuthenticationEntryPoint 
 
         ObjectMapper objectMapper = new ObjectMapper();
         response.setContentType("application/json;charset=UTF-8");
-        Map<String, String> body = new HashMap<>();
+        ErrResponse errResponse = ErrResponse.builder()
+                .code(ErrCode.UNAUTHORIZED.getCode())
+                .message(ErrCode.UNAUTHORIZED.getMessage())
+                .status(ErrCode.UNAUTHORIZED.getStatus()).build();
 
         response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-        body.put("message", "인증에 실패했습니다.");
-
-        response.getWriter().write(objectMapper.writeValueAsString(body));
+        response.getWriter().write(objectMapper.writeValueAsString(errResponse));
 
     }
 

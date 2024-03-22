@@ -4,6 +4,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
+import org.goormuniv.ponnect.exception.ErrCode;
+import org.goormuniv.ponnect.exception.ErrResponse;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.web.access.AccessDeniedHandler;
 import org.springframework.stereotype.Component;
@@ -22,12 +24,14 @@ public class CustomAccessDeniedHandler implements AccessDeniedHandler {
             throws IOException {
         ObjectMapper objectMapper = new ObjectMapper();
         response.setContentType("application/json;charset=UTF-8");
-        Map<String, String> body = new HashMap<>();
         response.setStatus(HttpServletResponse.SC_FORBIDDEN);
+        ErrResponse errResponse = ErrResponse.builder()
+                .code(ErrCode.INVALID_ACCESS_TOKEN.getCode())
+                .message(ErrCode.INVALID_ACCESS_TOKEN.getMessage())
+                .status(ErrCode.INTERNAL_SERVER_ERROR.getStatus())
+                .build();
 
-            body.put("message", "엑세스 권한이 없습니다.");
-
-        response.getWriter().write(objectMapper.writeValueAsString(body));
+        response.getWriter().write(objectMapper.writeValueAsString(errResponse));
     }
 
 }
