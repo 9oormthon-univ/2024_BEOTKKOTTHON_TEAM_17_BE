@@ -5,9 +5,13 @@ import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.info.Info;
 import io.swagger.v3.oas.models.security.SecurityRequirement;
 import io.swagger.v3.oas.models.security.SecurityScheme;
+import io.swagger.v3.oas.models.servers.Server;
 import lombok.val;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+
+import java.util.ArrayList;
+import java.util.List;
 
 
 @Configuration
@@ -15,9 +19,15 @@ public class SwaggerConfig {
 
     @Bean
     public OpenAPI openAPI() {
+
+        Server server = new Server();
+        server.setUrl("https://www.ponnect.kro.kr");
+        List<Server> servers = new ArrayList<>();
+        servers.add(server);
         return new OpenAPI()
                 .components(jwtToken())
                 .addSecurityItem(new SecurityRequirement().addList("authorization"))
+                .servers(servers)
                 .info(apiInfo());
     }
 
