@@ -264,13 +264,13 @@ public class CategoryService {
 
 
         @Transactional
-        public ResponseEntity<?> renameCategoryName (Principal principal, Long categoryId, CategoryRenameDto
+        public ResponseEntity<CategoryRenameDto> renameCategoryName (Principal principal, Long categoryId, CategoryRenameDto
         categoryRenameDto){
         try{
                 Member member = memberRepository.findByEmail(principal.getName()).orElseThrow(NotFoundMemberException::new);
                 Category category = categoryRepository.findCategoryByIdAndMemberId(categoryId, member.getId()).orElseThrow(NoExistCategoryException::new);
                 category.setCategoryName(categoryRenameDto.getCategoryName());
-                return ResponseEntity.ok().build();
+                return ResponseEntity.ok(categoryRenameDto);
             } catch (Exception e) {
                 log.info(e.getMessage());
                 throw new RenameCategoryException();

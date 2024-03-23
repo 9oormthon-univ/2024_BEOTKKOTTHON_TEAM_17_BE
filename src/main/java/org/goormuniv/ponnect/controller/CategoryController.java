@@ -63,7 +63,7 @@ public class CategoryController {
     @Operation(summary="카테고리 수정", description = "카테고리 수정")
     @PreAuthorize("isAuthenticated()")
     @PatchMapping("/card/category/{categoryId}")
-    public ResponseEntity<?> renameCategoryName(Principal principal, @PathVariable Long categoryId, @RequestBody CategoryRenameDto categoryRenameDto){
+    public ResponseEntity<CategoryRenameDto> renameCategoryName(Principal principal, @PathVariable Long categoryId, @RequestBody CategoryRenameDto categoryRenameDto){
         return categoryService.renameCategoryName(principal, categoryId, categoryRenameDto);
     }
 
