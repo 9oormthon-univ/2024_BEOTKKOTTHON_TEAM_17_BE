@@ -96,7 +96,7 @@ public class CategoryService {
     public ResponseEntity<?> getAllCardOfCategory(Long categoryId, Principal principal, String keyword) {
             Member member = memberRepository.findByEmail(principal.getName()).orElseThrow(NotFoundMemberException::new);
             categoryRepository.findCategoryByIdAndMemberId(categoryId, member.getId()).orElseThrow(NoPermissionException::new);
-            Specification<CardCategory> specification = search(keyword, categoryId);
+            Specification<CardCategory> specification = search(keyword, categoryId, member.getId());
             List<CardDto> cardDtos = cardCategoryRepository.findAll(specification).stream()
                     .map(cardCategory -> {
                         Member memberEntity = cardCategory.getMember();
@@ -140,16 +140,27 @@ public class CategoryService {
 
         }
 
-        private Specification<CardCategory> search (String kw, Long categoryId){
+        private Specification<CardCategory> search (String kw, Long categoryId, Long memberId){
             return (Root<CardCategory> root, CriteriaQuery<?> criteriaQuery, CriteriaBuilder criteriaBuilder) -> {
                 criteriaQuery.distinct(true);
                 Predicate followIdPredicate = criteriaBuilder.equal(root.get("category").get("id"), categoryId);
                 Join<CardCategory, Member> CardCategoryJoin = root.join("member", JoinType.INNER);
                 Join<Member, Card> cardJoin = CardCategoryJoin.join("card", JoinType.INNER);
+
 //                Predicate cardPredicate = criteriaBuilder.equal(cardJoin.get("id"), CardCategoryJoin.get("id"));
 
+                Subquery<String> followingMemoSubquery = criteriaQuery.subquery(String.class);
+                Root<Follow> followingMemoRoot = followingMemoSubquery.from(Follow.class);
+                followingMemoSubquery.select(followingMemoRoot.get("memo"));
+                followingMemoSubquery.where(
+                        criteriaBuilder.equal(followingMemoRoot.get("following").get("id"), memberId),
+                        criteriaBuilder.equal(followingMemoRoot.get("followed").get("id"), CardCategoryJoin.get("id"))
+                );
 
-                Predicate searchPredicate = criteriaBuilder.or(criteriaBuilder.like(CardCategoryJoin.get("name"), "%" + kw + "%"), // 제목
+
+                Predicate searchPredicate = criteriaBuilder.or(
+                        criteriaBuilder.like(followingMemoSubquery, "%" + kw + "%"),
+                        criteriaBuilder.like(CardCategoryJoin.get("name"), "%" + kw + "%"), // 제목
                         criteriaBuilder.like(CardCategoryJoin.get("email"), "%" + kw + "%"),      // 내용
                         criteriaBuilder.like(CardCategoryJoin.get("phone"), "%" + kw + "%"),
                         criteriaBuilder.like(cardJoin.get("content"), "%" + kw + "%"),
@@ -234,7 +245,23 @@ public class CategoryService {
                 categoryMembersSubquery.select(categoryMembersSubRoot.get("member").get("id")); // Selecting memberId from CardCategory
                 categoryMembersSubquery.where(criteriaBuilder.equal(categoryMembersSubRoot.get("category").get("id"), categoryId)); // Filtering by categoryId
 
-                Predicate searchPredicate = criteriaBuilder.or(criteriaBuilder.like(root.get("name"), "%" + kw + "%"), // 제목
+
+
+
+                Subquery<String> followingMemoSubquery = criteriaQuery.subquery(String.class);
+                Root<Follow> followingMemoRoot = followingMemoSubquery.from(Follow.class);
+                followingMemoSubquery.select(followingMemoRoot.get("memo"));
+                followingMemoSubquery.where(
+                        criteriaBuilder.equal(followingMemoRoot.get("following").get("id"), memberId),
+                        criteriaBuilder.equal(followingMemoRoot.get("followed").get("id"), root.get("id"))
+                );
+                // Adding condition to compare memo values
+
+
+
+                Predicate searchPredicate = criteriaBuilder.or(
+                        criteriaBuilder.like(followingMemoSubquery, "%" + kw + "%"),
+                        criteriaBuilder.like(root.get("name"), "%" + kw + "%"), // 제목
                         criteriaBuilder.like(root.get("email"), "%" + kw + "%"),      // 내용
                         criteriaBuilder.like(root.get("phone"), "%" + kw + "%"),
                         criteriaBuilder.like(root.get("card").get("content"), "%" + kw + "%"),

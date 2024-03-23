@@ -9,7 +9,7 @@ import org.springframework.http.HttpStatus;
 @AllArgsConstructor
 public enum ErrCode {
     UNAUTHORIZED("P401", "인증에 실패하였습니다.", HttpStatus.UNAUTHORIZED.value()),
-    INVALID_ACCESS_TOKEN("P007", "JWT가 없습니다.", HttpStatus.FORBIDDEN.value()),
+    INVALID_ACCESS_TOKEN("P007", "JWT가 유효하지 않습니다.", HttpStatus.FORBIDDEN.value()),
     DUPLICATED_EMAIL("P0006", "이미 사용중인 이메일입니다.", HttpStatus.BAD_REQUEST.value()),
     LOGIN_FAILED("P001", "아이디 또는 비밀번호가 잘못되었습니다.", HttpStatus.BAD_REQUEST.value()),
     SIGN_UP_FAILED("P002", "회원가입에 실패하였습니다.", HttpStatus.NOT_ACCEPTABLE.value()),

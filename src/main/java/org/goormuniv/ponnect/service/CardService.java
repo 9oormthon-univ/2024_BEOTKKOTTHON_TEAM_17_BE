@@ -169,9 +169,7 @@ public class CardService {
 
     public ResponseEntity<?> getAllCard (Principal principal, String keyword) {
             Member member = memberRepository.findByEmail(principal.getName()).orElseThrow(NotFoundMemberException::new);
-
             Specification<Follow> specification = search(keyword, member.getId()); //여기서 에러가 나는것 같다.
-
             List<CardDto> cardDtos = followRepository.findAll(specification).stream()
                     .map(follow -> {
                         log.info(follow.toString());
@@ -224,7 +222,9 @@ public class CardService {
 //            Predicate cardPredicate =  criteriaBuilder.equal(cardJoin.get("id"), followedJoin.get("id"));
 
 
-            Predicate searchPredicate = criteriaBuilder.or(criteriaBuilder.like(followedJoin.get("name"), "%" + kw + "%"), // 제목
+            Predicate searchPredicate = criteriaBuilder.or(
+                    criteriaBuilder.like(root.get("memo"), "%" + kw + "%"),
+                    criteriaBuilder.like(followedJoin.get("name"), "%" + kw + "%"), // 제목
                     criteriaBuilder.like(followedJoin.get("email"), "%" + kw + "%"),      // 내용
                     criteriaBuilder.like(followedJoin.get("phone"), "%" + kw + "%"),
                     criteriaBuilder.like(cardJoin.get("organization"), "%" + kw + "%"),
@@ -241,7 +241,7 @@ public class CardService {
                     criteriaBuilder.like(cardJoin.get("behance"), "%" + kw + "%"),
                     criteriaBuilder.like(cardJoin.get("github"), "%" + kw + "%"),
                     criteriaBuilder.like(cardJoin.get("kakao"), "%" + kw + "%")
-            );  //script
+            );
 
             return criteriaBuilder.and(followIdPredicate, searchPredicate);
         };
