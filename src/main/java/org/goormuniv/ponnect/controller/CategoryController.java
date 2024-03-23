@@ -2,12 +2,16 @@ package org.goormuniv.ponnect.controller;
 
 
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import okhttp3.Response;
-import org.goormuniv.ponnect.dto.CardToCategoryDto;
-import org.goormuniv.ponnect.dto.CategoryCreateDto;
-import org.goormuniv.ponnect.dto.CategoryRenameDto;
+import org.goormuniv.ponnect.dto.*;
 import org.goormuniv.ponnect.service.CategoryService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -19,6 +23,7 @@ import java.security.Principal;
 @RequiredArgsConstructor
 @Slf4j
 @RequestMapping("/api")
+@Tag(name = "카테고리", description = "카테고리 정보 관련 API")
 public class CategoryController {
 
     private final CategoryService categoryService;
@@ -31,6 +36,12 @@ public class CategoryController {
     }
 
     @Operation(summary="카테고리 목록 보기", description = "카테고리 목록 보기")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "성공",
+                    content = {
+                            @Content(mediaType = "application/json", array = @ArraySchema(schema = @Schema(implementation = CategoryDto.class)))
+                    })
+    })
     @PreAuthorize("isAuthenticated()")
     @GetMapping("/card/category") //카테고리 내역 조회
     public ResponseEntity<?> getCategory(Principal principal){
@@ -45,6 +56,12 @@ public class CategoryController {
     }
 
     @Operation(summary="카테고리 내에서의 명함 내역 및 검색", description = "카테고리 내에서의 명함 내역 및 검색")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "성공",
+                    content = {
+                            @Content(mediaType = "application/json", array = @ArraySchema(schema = @Schema(implementation = CardDto.class)))
+                    })
+    })
     @PreAuthorize("isAuthenticated()")
     @GetMapping("/card/category/{categoryId}")
     public ResponseEntity<?> getAllCards(Principal principal, @PathVariable(name = "categoryId") Long categoryId, @RequestParam(required = false, defaultValue = "", value = "search") String search ) {
@@ -52,6 +69,12 @@ public class CategoryController {
     }
 
     @Operation(summary="해당 카테고리에 없는 내역들 내역 및 검색", description = "해당 카테고리에 없는 내역들 내역 및 검색")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "성공",
+                    content = {
+                            @Content(mediaType = "application/json", array = @ArraySchema(schema = @Schema(implementation = CardDto.class)))
+                    })
+    })
     @PreAuthorize("isAuthenticated()")
     @GetMapping("/card/category/not-belong/{categoryId}")
     public ResponseEntity<?> getNotBelongCards(Principal principal, @PathVariable(name = "categoryId") Long categoryId, @RequestParam(required = false, defaultValue = "", value = "search") String search ) {

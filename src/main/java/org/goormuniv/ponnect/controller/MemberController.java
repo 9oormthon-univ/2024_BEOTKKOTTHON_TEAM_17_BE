@@ -3,6 +3,7 @@ package org.goormuniv.ponnect.controller;
 
 
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -25,6 +26,7 @@ import java.security.Principal;
 @Slf4j
 @RequiredArgsConstructor
 @RequestMapping("/api")
+@Tag(name = "인증", description = "인증 관련 API")
 public class MemberController {
 
     private final MemberService memberService;
