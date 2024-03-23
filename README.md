@@ -25,7 +25,7 @@ https://ponnect.netlify.app
 ![Swagger](https://img.shields.io/badge/Swagger-%2385EA2D?style=flat&logo=swagger&logoColor=white)
 ![Discord](https://img.shields.io/badge/Discord%20Webhook-%2385EA2D?style=flat&logo=discord&logoColor=white)
 ![Notion](https://img.shields.io/badge/Notioin-%23000000?style=flat&logo=notion&logoColor=white)  
-Notion 링크: https://www.notion.so/57b9676832d34fad993c68aac17c676b?v=aafe364803ae403ca4bbe4c4216fe36c&pvs=4
+Notion 링크: [https://www.notion.so/57b9676832d34fad993c68aac17c676b?v=aafe364803ae403ca4bbe4c4216fe36c&pvs=4](https://pretty-death-835.notion.site/0b569c05d143460aa2a80d68ff343ae3?v=a40cee8f062d4839ac513a923b94f462)
 <br/><br/>
 
 ## 서비스 아키텍처
