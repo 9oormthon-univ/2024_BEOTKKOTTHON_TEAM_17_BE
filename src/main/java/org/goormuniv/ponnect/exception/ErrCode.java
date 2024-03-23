@@ -16,13 +16,9 @@ public enum ErrCode {
     REISSUE_FAILED("P003", "비밀번호 재발급에 실패했습니다.", HttpStatus.NOT_ACCEPTABLE.value()),
     ALREADY_MEMBER("P004", "이미 가입된 사용자 입니다.", HttpStatus.BAD_REQUEST.value()),
     USER_NOT_FOUND("P005", "사용자를 찾을 수 없습니다,", HttpStatus.NOT_FOUND.value()),
-
     ALREADY_FOLLOW("P100", "이미 추가한 사용자입니다.", HttpStatus.BAD_REQUEST.value()),
-
-
     NO_EXIST_FOLLOW_MEMBER("P101", "해당 회원은 팔로우 된 상태가 아닙니다.", HttpStatus.BAD_REQUEST.value()),
     NO_EXIST_CARD("P102","해당 명함이 존재하지 않습니다." , HttpStatus.NOT_FOUND.value()),
-
     SELF_FOLLOW("P103", "자신을 팔로우 할 수 업습니다.", HttpStatus.BAD_REQUEST.value()),
     NO_EXIST_CATEGORY("P104", "해당 카테고리를 찾을 수 없습니다.", HttpStatus.NOT_FOUND.value()),
     NOT_CONTENT("P105", "추가할 항목이 없습니다.", HttpStatus.NOT_ACCEPTABLE.value()),
