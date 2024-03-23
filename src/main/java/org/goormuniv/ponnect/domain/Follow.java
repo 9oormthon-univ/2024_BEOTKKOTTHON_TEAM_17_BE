@@ -28,4 +28,8 @@ public class Follow extends BaseEntity {
     private Member followed;
 
 
+    @Column(columnDefinition = "TEXT")
+    @Builder.Default
+    private String memo = null;
+
 }
