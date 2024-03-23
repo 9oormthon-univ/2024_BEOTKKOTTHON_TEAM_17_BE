@@ -105,6 +105,12 @@ public class CardController {
     }
 
     @Operation(summary="메모 보기", description = "메모 보기")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "성공",
+                    content = {
+                            @Content(mediaType = "application/json", schema = @Schema(implementation = GetMemoDto.class))
+                    })
+    })
     @PreAuthorize("isAuthenticated()")
     @GetMapping("/card/memo/{userId}")
     public ResponseEntity<?> getMemo(@PathVariable(name="userId") Long userId, Principal principal) {
