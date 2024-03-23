@@ -11,10 +11,7 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.goormuniv.ponnect.auth.PrincipalDetails;
-import org.goormuniv.ponnect.dto.CardCreateDto;
-import org.goormuniv.ponnect.dto.CardDto;
-import org.goormuniv.ponnect.dto.ColorDto;
-import org.goormuniv.ponnect.dto.StickerDto;
+import org.goormuniv.ponnect.dto.*;
 import org.goormuniv.ponnect.repository.CardRepository;
 import org.goormuniv.ponnect.service.CardService;
 import org.springframework.http.ResponseEntity;
@@ -100,4 +97,23 @@ public class CardController {
         return cardService.changeColor(colorDto, principal);
     }
 
+    @Operation(summary="메모 변경", description = "메모 변경")
+    @PreAuthorize("isAuthenticated()")
+    @PatchMapping("/card/memo")
+    public ResponseEntity<?> changeMemo(@RequestBody ChangeMemoDto changeMemoDto, Principal principal) {
+        return cardService.changeMemo(changeMemoDto, principal);
+    }
+
+    @Operation(summary="메모 보기", description = "메모 보기")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "성공",
+                    content = {
+                            @Content(mediaType = "application/json", schema = @Schema(implementation = GetMemoDto.class))
+                    })
+    })
+    @PreAuthorize("isAuthenticated()")
+    @GetMapping("/card/memo/{userId}")
+    public ResponseEntity<?> getMemo(@PathVariable(name="userId") Long userId, Principal principal) {
+        return cardService.getMemo(userId, principal);
+    }
 }

@@ -317,4 +317,29 @@ public class CardService {
 
     }
 
+    public ResponseEntity<?> changeMemo (ChangeMemoDto changeMemoDto, Principal principal) {
+        Member member = memberRepository.findByEmail(principal.getName()).orElseThrow(NotFoundMemberException::new);
+        Follow follow = followRepository.findByFollowingIdAndFollowedId(member.getId(), changeMemoDto.getUserId());
+
+        if (follow == null) throw new NoExistFollowMemberException();
+
+        follow.setMemo(changeMemoDto.getMemo());
+
+        followRepository.save(follow);
+
+        return ResponseEntity.ok().build();
+    }
+
+    public ResponseEntity<?> getMemo (Long userId, Principal principal) {
+        Member member = memberRepository.findByEmail(principal.getName()).orElseThrow(NotFoundMemberException::new);
+        Follow follow = followRepository.findByFollowingIdAndFollowedId(member.getId(), userId);
+
+        if (follow == null) throw new NoExistFollowMemberException();
+
+        GetMemoDto getMemoDto = GetMemoDto.builder().memo(follow.getMemo()).build();
+        return ResponseEntity.ok().body(getMemoDto);
+
+
+    }
+
 }
