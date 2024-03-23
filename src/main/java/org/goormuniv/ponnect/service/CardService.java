@@ -33,9 +33,8 @@ public class CardService {
     private final CategoryRepository categoryRepository;
 
     @Transactional
-    public ResponseEntity<?> createCard(CardCreateDto cardCreateDto, Principal principal) {
+    public ResponseEntity<CardDto> createCard(CardCreateDto cardCreateDto, Principal principal) {
 
-        Map<String, Object> response = new HashMap<>();
 
             Member member = memberRepository.findByEmail(principal.getName()).orElseThrow(NotFoundMemberException::new);
             Card card = member.getCard();
@@ -105,11 +104,11 @@ public class CardService {
                                     .build())
                             .collect(Collectors.toList()))
                     .build();
-        response.put("userInfo", cardDto);
-        return ResponseEntity.ok().body(response);
+
+        return ResponseEntity.ok().body(cardDto);
     }
 
-    public ResponseEntity<?> getMyCard(Principal principal) {
+    public ResponseEntity<CardDto> getMyCard(Principal principal) {
         CardDto cardDto;
             Member member = memberRepository.findByEmail(principal.getName()).orElseThrow(NotFoundMemberException::new);
             cardDto = CardDto.builder()
